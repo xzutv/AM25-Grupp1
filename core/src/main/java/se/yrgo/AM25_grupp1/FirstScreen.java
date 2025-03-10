@@ -1,6 +1,7 @@
 package se.yrgo.AM25_grupp1;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,12 +9,15 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.ArrayList;
 
-/** First screen of the application. Displayed after the application is created. */
+/**
+ * First screen of the application. Displayed after the application is created.
+ */
 public class FirstScreen implements Screen {
     Main main;
     Texture charTexture;
@@ -24,6 +28,9 @@ public class FirstScreen implements Screen {
     FitViewport viewport;
 
     Rectangle charRectangle;
+    Vector2 touchPos;
+
+    float speed;
 
     public FirstScreen(Main main) {
         this.main = main;
@@ -35,6 +42,7 @@ public class FirstScreen implements Screen {
         spriteBatch = new SpriteBatch();
         viewport = new FitViewport(8, 5);
         charRectangle = new Rectangle();
+        touchPos = new Vector2();
     }
 
     @Override
@@ -43,13 +51,29 @@ public class FirstScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        input();
         logic();
         draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true); // true centers the camera
+        viewport.update(width, height, true);
+    }
+
+    private void input() {
+        speed = 10f;
+        float delta = Gdx.graphics.getDeltaTime();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            speed = 10f;
+            charSprite.translateY(speed * delta);
+        }
+        if (Gdx.input.isTouched()) {
+            touchPos.set(Gdx.input.getX(), Gdx.input.getY());
+            viewport.unproject(touchPos);
+            charSprite.setCenterX(touchPos.x);
+        }
     }
 
     private void logic() {
@@ -59,13 +83,17 @@ public class FirstScreen implements Screen {
         float charWidth = charSprite.getWidth();
         float charHeight = charSprite.getHeight();
 
-        charSprite.setX(MathUtils.clamp(charSprite.getX(), 0, worldWidth - charWidth));
+        charSprite.setY(MathUtils.clamp(charSprite.getY(), 0, worldHeight - charHeight));
 
         float delta = Gdx.graphics.getDeltaTime();
         charRectangle.set(charSprite.getX(), charSprite.getY(), charWidth, charHeight);
+
+        charSprite.translateY(-2f * delta);
+
+
     }
 
-        private void draw() {
+    private void draw() {
         ScreenUtils.clear(Color.BLACK);
         viewport.apply();
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
