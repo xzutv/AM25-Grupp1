@@ -30,7 +30,9 @@ public class FirstScreen implements Screen {
     Rectangle charRectangle;
     Vector2 touchPos;
 
-    float speed;
+    final float speed = 5f;
+    float velocity;
+    final float gravity = -.2f;
 
     public FirstScreen(Main main) {
         this.main = main;
@@ -62,13 +64,12 @@ public class FirstScreen implements Screen {
     }
 
     private void input() {
-        speed = 10f;
         float delta = Gdx.graphics.getDeltaTime();
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            speed = 10f;
-            charSprite.translateY(speed * delta);
+            velocity = speed;
         }
+
         if (Gdx.input.isTouched()) {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY());
             viewport.unproject(touchPos);
@@ -83,14 +84,13 @@ public class FirstScreen implements Screen {
         float charWidth = charSprite.getWidth();
         float charHeight = charSprite.getHeight();
 
-        charSprite.setY(MathUtils.clamp(charSprite.getY(), 0, worldHeight - charHeight));
-
         float delta = Gdx.graphics.getDeltaTime();
         charRectangle.set(charSprite.getX(), charSprite.getY(), charWidth, charHeight);
 
-        charSprite.translateY(-2f * delta);
+        velocity += gravity;
+        charSprite.translateY(velocity * delta);
 
-
+        charSprite.setY(MathUtils.clamp(charSprite.getY(), 0 - charHeight, worldHeight - charHeight));
     }
 
     private void draw() {
