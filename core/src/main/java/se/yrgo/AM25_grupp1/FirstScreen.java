@@ -25,8 +25,6 @@ public class FirstScreen implements Screen {
 
     Rectangle charRectangle;
 
-
-
     public FirstScreen(Main main) {
         this.main = main;
         charTexture = new Texture("character.png");
