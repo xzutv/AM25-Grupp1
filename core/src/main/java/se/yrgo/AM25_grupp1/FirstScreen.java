@@ -11,8 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.ArrayList;
@@ -24,6 +23,16 @@ public class FirstScreen implements Screen {
     private Main main;
     private Texture charTexture;
     private Texture backgroundTexture;
+    private Texture pipeTop;
+    private Texture pipeBot;
+
+    private Array<Sprite> pipeArrayTop;
+    private Array<Sprite> pipeArrayBot;
+    private float pipeTimer;
+    private Rectangle pipeTopRectangle;
+    private Rectangle pipeBotRectangle;
+    // private Sprite topPipeSprite;
+    // private Sprite botPipeSprite;
 
     private Sprite charSprite;
     private SpriteBatch spriteBatch;
@@ -44,17 +53,17 @@ public class FirstScreen implements Screen {
     private float scaleFactor;
     private float baseFontSize;
 
-
-
     public FirstScreen(Main main) {
         this.main = main;
-        this.viewport = new FitViewport(8, 5);
+        this.viewport = new FitViewport(16, 10);
         this.charTexture = new Texture("character.png");
         this.backgroundTexture = new Texture("background2.png");
+        this.pipeBot = new Texture("pipe-bottom.png");
+        this.pipeTop = new Texture("pipe-top.png");
 
         this.charSprite = new Sprite(charTexture);
         charSprite.setSize(1, 1);
-        charSprite.setPosition(3, 3);
+        charSprite.setPosition(7, 6);
         this.charRectangle = new Rectangle();
         this.spriteBatch = new SpriteBatch();
 
@@ -65,13 +74,20 @@ public class FirstScreen implements Screen {
         this.bigFont = new BitmapFont();
 
         this.scaleFactor = viewport.getWorldWidth() / 800f;
-        this.baseFontSize = 300.0f;
+        this.baseFontSize = 100.0f;
 
         final Color fontColor = Color.SCARLET;
 
         this.bigFont.setColor(fontColor);
         this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         this.bigFont.getData().setScale(baseFontSize * scaleFactor);
+
+        this.pipeArrayBot = new Array<>();
+        this.pipeArrayTop = new Array<>();
+        this.pipeTopRectangle = new Rectangle();
+        this.pipeBotRectangle = new Rectangle();
+
+        createPipes();
     }
 
     @Override
@@ -83,7 +99,7 @@ public class FirstScreen implements Screen {
         draw();
         if (firstRound) {
             batch.begin();
-            bigFont.draw(batch, "Press space to start!", 100, 200, 600, Align.center, false);
+            bigFont.draw(batch, "Press space to start!", 250, 200, 300, Align.center, false);
 
             batch.end();
         }
@@ -130,6 +146,44 @@ public class FirstScreen implements Screen {
         charSprite.translateY(velocity * delta);
 
         charSprite.setY(MathUtils.clamp(charSprite.getY(), 0 - charHeight, worldHeight - charHeight));
+
+        for (int i = pipeArrayBot.size - 1; i >= 0; i--) {
+            Sprite pipeSpriteBot = pipeArrayBot.get(i); 
+            float pipeWidth = pipeSpriteBot.getWidth();
+            float pipeHeight = pipeSpriteBot.getHeight();
+
+            pipeSpriteBot.translateX(-2f * delta);
+
+            pipeBotRectangle.set(pipeSpriteBot.getX(), pipeSpriteBot.getY(), pipeWidth, pipeHeight);
+
+            if (pipeSpriteBot.getX() < -pipeWidth) {
+                pipeArrayBot.removeIndex(i);
+            } else if (charRectangle.overlaps(pipeBotRectangle)) { 
+                pipeArrayBot.removeIndex(i); 
+            }
+        }
+
+        for (int i = pipeArrayTop.size - 1; i >= 0; i--) {
+            Sprite pipeSpriteTop = pipeArrayTop.get(i); 
+            float pipeWidth = pipeSpriteTop.getWidth();
+            float pipeHeight = pipeSpriteTop.getHeight();
+
+            pipeSpriteTop.translateX(-2f * delta);
+            pipeTopRectangle.set(pipeSpriteTop.getX(), pipeSpriteTop.getY(), pipeWidth, pipeHeight);
+
+
+            if (pipeSpriteTop.getX() < -pipeWidth) {
+                pipeArrayTop.removeIndex(i);
+            } else if (charRectangle.overlaps(pipeTopRectangle)) { 
+                pipeArrayTop.removeIndex(i); 
+            }
+        }
+
+        pipeTimer += delta; // Adds the current delta to the timer
+        if (pipeTimer > 3f) { // Check if it has been more than given seconds
+            pipeTimer = 0; // reset timer
+            createPipes(); 
+        }
     }
 
     private void draw() {
@@ -144,7 +198,37 @@ public class FirstScreen implements Screen {
         spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
         charSprite.draw(spriteBatch);
 
+        // draw each sprite
+        for (Sprite pipeSprite : pipeArrayTop) {
+            pipeSprite.draw(spriteBatch);
+        }
+        for (Sprite pipeSprite : pipeArrayBot) {
+            pipeSprite.draw(spriteBatch);
+        }
+
         spriteBatch.end();
+    }
+
+    private void createPipes() {
+        // create local variables for convenience
+        float pipeWidth = 1;
+        float pipeHeight = 4;
+        float worldWidth = viewport.getWorldWidth();
+        float worldHeight = viewport.getWorldHeight();
+
+        Sprite pipeSpriteBot = new Sprite(pipeBot);
+        Sprite pipeSpriteTop = new Sprite(pipeTop);
+
+        pipeSpriteBot.setSize(pipeWidth, pipeHeight);
+        pipeSpriteBot.setX(worldWidth);
+        pipeSpriteBot.setY(-1);
+        pipeArrayBot.add(pipeSpriteBot); // Add bot pipe to the list
+
+        pipeSpriteTop.setSize(pipeWidth, pipeHeight);
+        pipeSpriteTop.setX(worldWidth);
+        pipeSpriteTop.setY(worldHeight + 1 - pipeHeight);
+        pipeArrayTop.add(pipeSpriteTop); // Add top pipe to the list
+
     }
 
     @Override
