@@ -5,11 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -19,32 +21,57 @@ import java.util.ArrayList;
  * First screen of the application. Displayed after the application is created.
  */
 public class FirstScreen implements Screen {
-    Main main;
-    Texture charTexture;
-    Texture backgroundTexture;
+    private Main main;
+    private Texture charTexture;
+    private Texture backgroundTexture;
 
-    Sprite charSprite;
-    SpriteBatch spriteBatch;
-    FitViewport viewport;
+    private Sprite charSprite;
+    private SpriteBatch spriteBatch;
+    private FitViewport viewport;
 
-    Rectangle charRectangle;
-    Vector2 touchPos;
+    private Rectangle charRectangle;
+    private Vector2 touchPos;
 
-    final float speed = 5f;
-    float velocity;
-    final float gravity = -.2f;
+    private final float speed = 5f;
+    private float velocity;
+    private final float gravity = -.2f;
+
+    private boolean firstRound;
+
+    private SpriteBatch batch;
+    private BitmapFont bigFont;
+
+    private float scaleFactor;
+    private float baseFontSize;
+
+
 
     public FirstScreen(Main main) {
         this.main = main;
-        charTexture = new Texture("character.png");
-        backgroundTexture = new Texture("background2.png");
-        charSprite = new Sprite(charTexture);
+        this.viewport = new FitViewport(8, 5);
+        this.charTexture = new Texture("character.png");
+        this.backgroundTexture = new Texture("background2.png");
+
+        this.charSprite = new Sprite(charTexture);
         charSprite.setSize(1, 1);
         charSprite.setPosition(3, 3);
-        spriteBatch = new SpriteBatch();
-        viewport = new FitViewport(8, 5);
-        charRectangle = new Rectangle();
-        touchPos = new Vector2();
+        this.charRectangle = new Rectangle();
+        this.spriteBatch = new SpriteBatch();
+
+        this.touchPos = new Vector2();
+        this.firstRound = true;
+
+        this.batch = new SpriteBatch();
+        this.bigFont = new BitmapFont();
+
+        this.scaleFactor = viewport.getWorldWidth() / 800f;
+        this.baseFontSize = 300.0f;
+
+        final Color fontColor = Color.SCARLET;
+
+        this.bigFont.setColor(fontColor);
+        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        this.bigFont.getData().setScale(baseFontSize * scaleFactor);
     }
 
     @Override
@@ -53,9 +80,21 @@ public class FirstScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        input();
-        logic();
         draw();
+        if (firstRound) {
+            batch.begin();
+            bigFont.draw(batch, "Press space to start!", 100, 200, 600, Align.center, false);
+
+            batch.end();
+        }
+
+        if (firstRound && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            firstRound = false;
+        }
+        if (!firstRound) {
+            input();
+            logic();
+        }
     }
 
     @Override
