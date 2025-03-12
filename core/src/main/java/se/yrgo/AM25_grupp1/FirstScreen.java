@@ -23,16 +23,14 @@ public class FirstScreen implements Screen {
     private Main main;
     private Texture charTexture;
     private Texture backgroundTexture;
-    private Texture pipeTop;
-    private Texture pipeBot;
+    private Texture pipeTopTexture;
+    private Texture pipeBotTexture;
 
     private Array<Sprite> pipeArrayTop;
     private Array<Sprite> pipeArrayBot;
     private float pipeTimer;
     private Rectangle pipeTopRectangle;
     private Rectangle pipeBotRectangle;
-    // private Sprite topPipeSprite;
-    // private Sprite botPipeSprite;
 
     private Sprite charSprite;
     private SpriteBatch spriteBatch;
@@ -58,8 +56,8 @@ public class FirstScreen implements Screen {
         this.viewport = new FitViewport(16, 10);
         this.charTexture = new Texture("character.png");
         this.backgroundTexture = new Texture("background2.png");
-        this.pipeBot = new Texture("pipe-bottom.png");
-        this.pipeTop = new Texture("pipe-top.png");
+        this.pipeBotTexture = new Texture("pipe-bottom.png");
+        this.pipeTopTexture = new Texture("pipe-top.png");
 
         this.charSprite = new Sprite(charTexture);
         charSprite.setSize(1, 1);
@@ -216,8 +214,8 @@ public class FirstScreen implements Screen {
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
 
-        Sprite pipeSpriteBot = new Sprite(pipeBot);
-        Sprite pipeSpriteTop = new Sprite(pipeTop);
+        Sprite pipeSpriteBot = new Sprite(pipeBotTexture);
+        Sprite pipeSpriteTop = new Sprite(pipeTopTexture);
 
         pipeSpriteBot.setSize(pipeWidth, pipeHeight);
         pipeSpriteBot.setX(worldWidth);
