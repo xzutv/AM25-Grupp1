@@ -171,7 +171,9 @@ public class FirstScreen implements Screen {
             } else if (charRectangle.overlaps(pipeTopRectangle) || charRectangle.overlaps(pipeBottomRectangle)) {
                 pipeArray.removeIndex(i);
                 main.create();
-            }
+            } else if (charRectangle.getY() < 0) {
+            main.create();
+        }
         }
 
         pipeTimer += delta; // Adds the current delta to the timer
