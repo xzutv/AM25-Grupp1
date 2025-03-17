@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * First screen of the application. Displayed after the application is created.
@@ -24,13 +24,12 @@ public class FirstScreen implements Screen {
     private Texture charTexture;
     private Texture backgroundTexture;
     private Texture pipeTopTexture;
-    private Texture pipeBotTexture;
+    private Texture pipeBottomTexture;
 
-    private Array<Sprite> pipeArrayTop;
-    private Array<Sprite> pipeArrayBot;
+    private Array<Sprite> pipeArray;
     private float pipeTimer;
     private Rectangle pipeTopRectangle;
-    private Rectangle pipeBotRectangle;
+    private Rectangle pipeBottomRectangle;
 
     private Sprite charSprite;
     private SpriteBatch spriteBatch;
@@ -51,12 +50,15 @@ public class FirstScreen implements Screen {
     private float scaleFactor;
     private float baseFontSize;
 
+    private int points;
+    private boolean isPassed;
+
     public FirstScreen(Main main) {
         this.main = main;
         this.viewport = new FitViewport(16, 10);
         this.charTexture = new Texture("character.png");
         this.backgroundTexture = new Texture("background2.png");
-        this.pipeBotTexture = new Texture("pipe-bottom.png");
+        this.pipeBottomTexture = new Texture("pipe-bottom.png");
         this.pipeTopTexture = new Texture("pipe-top.png");
 
         this.charSprite = new Sprite(charTexture);
@@ -80,12 +82,15 @@ public class FirstScreen implements Screen {
         this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         this.bigFont.getData().setScale(baseFontSize * scaleFactor);
 
-        this.pipeArrayBot = new Array<>();
-        this.pipeArrayTop = new Array<>();
+        this.pipeArray = new Array<>();
         this.pipeTopRectangle = new Rectangle();
-        this.pipeBotRectangle = new Rectangle();
+        this.pipeBottomRectangle = new Rectangle();
 
         createPipes();
+
+        this.pipeTimer = 0f;
+        this.isPassed = false;
+
     }
 
     @Override
@@ -138,49 +143,41 @@ public class FirstScreen implements Screen {
         float charHeight = charSprite.getHeight();
 
         float delta = Gdx.graphics.getDeltaTime();
-        charRectangle.set(charSprite.getX(), charSprite.getY(), charWidth, charHeight);
+        charRectangle.set(charSprite.getX(), charSprite.getY(), (charWidth * .9f), (charHeight * .8f));
 
         velocity += gravity;
         charSprite.translateY(velocity * delta);
 
         charSprite.setY(MathUtils.clamp(charSprite.getY(), 0 - charHeight, worldHeight - charHeight));
 
-        for (int i = pipeArrayBot.size - 1; i >= 0; i--) {
-            Sprite pipeSpriteBot = pipeArrayBot.get(i); 
-            float pipeWidth = pipeSpriteBot.getWidth();
-            float pipeHeight = pipeSpriteBot.getHeight();
+        for (int i = pipeArray.size - 1; i >= 0; i--) {
+            Sprite pipeSpriteTop = pipeArray.get(i);
+            float pipeTopWidth = pipeSpriteTop.getWidth();
+            float pipeTopHeight = pipeSpriteTop.getHeight();
 
-            pipeSpriteBot.translateX(-2f * delta);
+            Sprite pipeSpriteBottom = pipeArray.get(i);
+            float pipeBottomWidth = pipeSpriteBottom.getWidth();
+            float pipeBottomHeight = pipeSpriteBottom.getHeight();
 
-            pipeBotRectangle.set(pipeSpriteBot.getX(), pipeSpriteBot.getY(), pipeWidth, pipeHeight);
+            pipeArray.get(i).translateX(-3f * delta);
 
-            if (pipeSpriteBot.getX() < -pipeWidth) {
-                pipeArrayBot.removeIndex(i);
-            } else if (charRectangle.overlaps(pipeBotRectangle)) { 
-                pipeArrayBot.removeIndex(i); 
-            }
-        }
-
-        for (int i = pipeArrayTop.size - 1; i >= 0; i--) {
-            Sprite pipeSpriteTop = pipeArrayTop.get(i); 
-            float pipeWidth = pipeSpriteTop.getWidth();
-            float pipeHeight = pipeSpriteTop.getHeight();
-
-            pipeSpriteTop.translateX(-2f * delta);
-            pipeTopRectangle.set(pipeSpriteTop.getX(), pipeSpriteTop.getY(), pipeWidth, pipeHeight);
+            pipeBottomRectangle.set(pipeSpriteBottom.getX(), pipeSpriteBottom.getY(), pipeBottomWidth, pipeBottomHeight);
+            pipeTopRectangle.set(pipeSpriteTop.getX(), pipeSpriteTop.getY(), pipeTopWidth, pipeTopHeight);
 
 
-            if (pipeSpriteTop.getX() < -pipeWidth) {
-                pipeArrayTop.removeIndex(i);
-            } else if (charRectangle.overlaps(pipeTopRectangle)) { 
-                pipeArrayTop.removeIndex(i); 
+            if (pipeSpriteBottom.getX() < -pipeBottomWidth) {
+                pipeArray.removeIndex(i);
+                System.out.println("Pipe removed");
+            } else if (charRectangle.overlaps(pipeTopRectangle) || charRectangle.overlaps(pipeBottomRectangle)) {
+                pipeArray.removeIndex(i);
+                main.create();
             }
         }
 
         pipeTimer += delta; // Adds the current delta to the timer
-        if (pipeTimer > 3f) { // Check if it has been more than given seconds
+        if (pipeTimer > 2f) { // Check if it has been more than given seconds
             pipeTimer = 0; // reset timer
-            createPipes(); 
+            createPipes();
         }
     }
 
@@ -197,10 +194,7 @@ public class FirstScreen implements Screen {
         charSprite.draw(spriteBatch);
 
         // draw each sprite
-        for (Sprite pipeSprite : pipeArrayTop) {
-            pipeSprite.draw(spriteBatch);
-        }
-        for (Sprite pipeSprite : pipeArrayBot) {
+        for (Sprite pipeSprite : pipeArray) {
             pipeSprite.draw(spriteBatch);
         }
 
@@ -209,23 +203,28 @@ public class FirstScreen implements Screen {
 
     private void createPipes() {
         // create local variables for convenience
-        float pipeWidth = 1;
-        float pipeHeight = 4;
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
 
-        Sprite pipeSpriteBot = new Sprite(pipeBotTexture);
+        float pipeWidth = 1f;
+        float pipeHeight = 5f;
+        float gap = 2f;
+
+        float pipeHeightBottom = ThreadLocalRandom.current().nextFloat(pipeHeight) + 2;
+        float pipeHeightTop = worldHeight + 1 - pipeHeightBottom - gap;
+
+
+        Sprite pipeSpriteBottom = new Sprite(pipeBottomTexture);
         Sprite pipeSpriteTop = new Sprite(pipeTopTexture);
 
-        pipeSpriteBot.setSize(pipeWidth, pipeHeight);
-        pipeSpriteBot.setX(worldWidth);
-        pipeSpriteBot.setY(-1);
-        pipeArrayBot.add(pipeSpriteBot); // Add bot pipe to the list
+        pipeSpriteBottom.setSize(pipeWidth, pipeHeightBottom);
+        pipeSpriteBottom.setX(worldWidth);
+        pipeSpriteBottom.setY(-1);
 
-        pipeSpriteTop.setSize(pipeWidth, pipeHeight);
+        pipeSpriteTop.setSize(pipeWidth, pipeHeightTop);
         pipeSpriteTop.setX(worldWidth);
-        pipeSpriteTop.setY(worldHeight + 1 - pipeHeight);
-        pipeArrayTop.add(pipeSpriteTop); // Add top pipe to the list
+        pipeSpriteTop.setY(worldHeight + 1 - pipeHeightTop);
+        pipeArray.add(pipeSpriteBottom, pipeSpriteTop); // Add bot pipe to the list
 
     }
 
