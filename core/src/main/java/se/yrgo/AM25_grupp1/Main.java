@@ -5,8 +5,17 @@ import com.badlogic.gdx.Game;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
     private FirstScreen firstScreen;
+    private int sessionHighscore;
     @Override
     public void create() {
         setScreen(new FirstScreen(this));
+    }
+
+    public int getSessionHighscore() {
+        return sessionHighscore;
+    }
+
+    public void setSessionHighscore(int sessionHighscore) {
+        this.sessionHighscore = sessionHighscore;
     }
 }

@@ -28,6 +28,7 @@ public class FirstScreen implements Screen {
 
     private Array<Sprite> pipeArray;
     private float pipeTimer;
+    private float scoreTimer;
     private Rectangle pipeTopRectangle;
     private Rectangle pipeBottomRectangle;
 
@@ -51,7 +52,6 @@ public class FirstScreen implements Screen {
     private float baseFontSize;
 
     private int points;
-    private boolean isPassed;
 
     public FirstScreen(Main main) {
         this.main = main;
@@ -89,7 +89,7 @@ public class FirstScreen implements Screen {
         createPipes();
 
         this.pipeTimer = 0f;
-        this.isPassed = false;
+        this.scoreTimer = -.7f;
 
     }
 
@@ -103,7 +103,7 @@ public class FirstScreen implements Screen {
         if (firstRound) {
             batch.begin();
             bigFont.draw(batch, "Press space to start!", 250, 200, 300, Align.center, false);
-
+            bigFont.draw(batch, "Your session high-score is: " + main.getSessionHighscore(), 250, 100, 300, Align.center, false);
             batch.end();
         }
 
@@ -167,16 +167,25 @@ public class FirstScreen implements Screen {
 
             if (pipeSpriteBottom.getX() < -pipeBottomWidth) {
                 pipeArray.removeIndex(i);
-                System.out.println("Pipe removed");
             } else if (charRectangle.overlaps(pipeTopRectangle) || charRectangle.overlaps(pipeBottomRectangle)) {
                 pipeArray.removeIndex(i);
                 main.create();
             } else if (charRectangle.getY() < 0) {
-            main.create();
-        }
+                main.create();
+            }
         }
 
         pipeTimer += delta; // Adds the current delta to the timer
+        scoreTimer += delta;
+        if (scoreTimer > 2f) {
+            points++;
+            System.out.println(points);
+            if (points > main.getSessionHighscore()) {
+                main.setSessionHighscore(points);
+            }
+            scoreTimer = 0f;
+        }
+
         if (pipeTimer > 2f) { // Check if it has been more than given seconds
             pipeTimer = 0; // reset timer
             createPipes();
@@ -210,10 +219,10 @@ public class FirstScreen implements Screen {
 
         float pipeWidth = 1f;
         float pipeHeight = 5f;
-        float gap = 2f;
+        float gap = 4f;
 
         float pipeHeightBottom = ThreadLocalRandom.current().nextFloat(pipeHeight) + 2;
-        float pipeHeightTop = worldHeight + 1 - pipeHeightBottom - gap;
+        float pipeHeightTop = worldHeight + 3 - pipeHeightBottom - gap;
 
 
         Sprite pipeSpriteBottom = new Sprite(pipeBottomTexture);
