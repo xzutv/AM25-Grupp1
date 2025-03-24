@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -44,6 +45,12 @@ public class GameScreen implements Screen {
 
     private int points;
 
+    private SpriteBatch batch;
+    private BitmapFont bigFont;
+
+    private float scaleFactor;
+    private float baseFontSize;
+
     public GameScreen(Main main) {
         this.main = main;
         this.viewport = new FitViewport(16, 10);
@@ -67,7 +74,17 @@ public class GameScreen implements Screen {
         createPipes();
 
         this.pipeTimer = 0f;
-        this.scoreTimer = -.7f;
+        this.scoreTimer = -.8f;
+
+        this.batch = new SpriteBatch();
+        this.bigFont = new BitmapFont();
+        this.scaleFactor = viewport.getWorldWidth() / 800f;
+        this.baseFontSize = 100.0f;
+
+        final Color fontColor = Color.SCARLET;
+        this.bigFont.setColor(fontColor);
+        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        this.bigFont.getData().setScale(baseFontSize * scaleFactor);
     }
 
     @Override
@@ -77,6 +94,9 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         draw();
+        batch.begin();
+        bigFont.draw(batch, "Points: " + points, 50, 450, 200, Align.topLeft, false);
+        batch.end();
         input();
         logic();
     }

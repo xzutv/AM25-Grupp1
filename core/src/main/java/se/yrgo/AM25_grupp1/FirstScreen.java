@@ -25,6 +25,7 @@ public class FirstScreen implements Screen {
 
     private SpriteBatch batch;
     private BitmapFont bigFont;
+    private BitmapFont smallFont;
 
     private float scaleFactor;
     private float baseFontSize;
@@ -42,13 +43,18 @@ public class FirstScreen implements Screen {
 
         this.batch = new SpriteBatch();
         this.bigFont = new BitmapFont();
-        this.scaleFactor = viewport.getWorldWidth() / 800f;
-        this.baseFontSize = 100.0f;
+//        this.scaleFactor = viewport.getWorldWidth() / 800f;
+//        this.baseFontSize = 100.0f;
 
         final Color fontColor = Color.SCARLET;
         this.bigFont.setColor(fontColor);
-        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        this.bigFont.getData().setScale(baseFontSize * scaleFactor);
+        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        this.bigFont.getData().setScale(2.5f);
+
+        this.smallFont = new BitmapFont();
+        this.smallFont.setColor(fontColor);
+        this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        this.smallFont.getData().setScale(1.5f);
     }
 
     @Override
@@ -68,10 +74,15 @@ public class FirstScreen implements Screen {
         draw();
         batch.begin();
         bigFont.draw(batch, "Press space to start!", 250, 200, 300, Align.center, false);
+        if (!main.isFirstRound()) {
+            String roundPoints = String.format("You scored: %d", main.getRoundScore());
+            smallFont.draw(batch, roundPoints, 250, 150, 300, Align.center, false);
+        }
         bigFont.draw(batch, "Your session high-score is: " + main.getSessionHighscore(), 250, 100, 300, Align.center, false);
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            main.setFirstRound(false);
             main.startGame();
         }
     }

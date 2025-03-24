@@ -7,6 +7,8 @@ public class Main extends Game {
     private FirstScreen firstScreen;
     private GameScreen gameScreen;
 
+    private boolean firstRound = true;
+    private int roundScore;
     private int sessionHighscore;
 
     @Override
@@ -21,6 +23,18 @@ public class Main extends Game {
 
     public void setSessionHighscore(int sessionHighscore) {
         this.sessionHighscore = sessionHighscore;
+    }
+
+    public int getRoundScore() {
+        return roundScore;
+    }
+
+    public boolean isFirstRound() {
+        return firstRound;
+    }
+
+    public void setFirstRound(boolean firstRound) {
+        this.firstRound = firstRound;
     }
 
     public void startGame() {
