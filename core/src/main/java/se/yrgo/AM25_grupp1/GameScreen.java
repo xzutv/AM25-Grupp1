@@ -22,6 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameScreen implements Screen {
     private Main main;
     private Texture charTexture;
+    private Texture charAnimationTexture;
     private Texture backgroundTexture;
     private Texture pipeTopTexture;
     private Texture pipeBottomTexture;
@@ -29,6 +30,7 @@ public class GameScreen implements Screen {
     private Array<Sprite> pipeArray;
     private float pipeTimer;
     private float scoreTimer;
+    private float animTimer;
     private Rectangle pipeTopRectangle;
     private Rectangle pipeBottomRectangle;
 
@@ -55,6 +57,7 @@ public class GameScreen implements Screen {
         this.main = main;
         this.viewport = new FitViewport(16, 10);
         this.charTexture = new Texture("character.png");
+        this.charAnimationTexture = new Texture("characterAnimation.png");
         this.backgroundTexture = new Texture("background2.png");
         this.pipeBottomTexture = new Texture("pipe-bottom.png");
         this.pipeTopTexture = new Texture("pipe-top.png");
@@ -75,6 +78,7 @@ public class GameScreen implements Screen {
 
         this.pipeTimer = 0f;
         this.scoreTimer = -.8f;
+        this.animTimer = 0f;
 
         this.batch = new SpriteBatch();
         this.bigFont = new BitmapFont();
@@ -97,7 +101,7 @@ public class GameScreen implements Screen {
         batch.begin();
         bigFont.draw(batch, "Points: " + points, 50, 450, 200, Align.topLeft, false);
         batch.end();
-        input();
+        input(delta);
         logic();
     }
 
@@ -106,11 +110,18 @@ public class GameScreen implements Screen {
         viewport.update(width, height, true);
     }
 
-    private void input() {
-        float delta = Gdx.graphics.getDeltaTime();
+    private void input(float delta) {
+        animTimer += delta;
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            animTimer = 0f;
             velocity = speed;
+            charSprite.setTexture(charAnimationTexture);
+        }
+
+
+        if (animTimer >= 0.4f) {
+            charSprite.setTexture(charTexture);
         }
 
         if (Gdx.input.isTouched()) {
@@ -154,8 +165,10 @@ public class GameScreen implements Screen {
                 pipeArray.removeIndex(i);
             } else if (charRectangle.overlaps(pipeTopRectangle) || charRectangle.overlaps(pipeBottomRectangle)) {
                 pipeArray.removeIndex(i);
+                main.setRoundScore(points);
                 main.create();
             } else if (charRectangle.getY() < 0) {
+                main.setRoundScore(points);
                 main.create();
             }
         }
@@ -164,7 +177,6 @@ public class GameScreen implements Screen {
         scoreTimer += delta;
         if (scoreTimer > 2f) {
             points++;
-            System.out.println(points);
             if (points > main.getSessionHighscore()) {
                 main.setSessionHighscore(points);
             }
