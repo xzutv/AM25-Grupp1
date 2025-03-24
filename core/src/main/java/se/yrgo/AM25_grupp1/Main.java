@@ -29,6 +29,10 @@ public class Main extends Game {
         return roundScore;
     }
 
+    public void setRoundScore(int roundScore) {
+        this.roundScore = roundScore;
+    }
+
     public boolean isFirstRound() {
         return firstRound;
     }
