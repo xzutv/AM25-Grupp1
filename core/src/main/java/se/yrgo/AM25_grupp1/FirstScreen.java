@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.io.IOException;
+
 /**
  * First screen of the application. Displayed after the application is created.
  */
@@ -67,6 +69,16 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
+        try {
+            if (main.getSessionHighscore() > main.getAllTimeHighscore()) {
+                main.updateAllTimeHighscore(main.getSessionHighscore());
+            }
+            else {
+                main.updateAllTimeHighscore(main.getAllTimeHighscore());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -77,8 +89,10 @@ public class FirstScreen implements Screen {
         if (!main.isFirstRound()) {
             String roundPoints = String.format("You scored: %d", main.getRoundScore());
             smallFont.draw(batch, roundPoints, 250, 150, 300, Align.center, false);
+            bigFont.draw(batch, "Your session high-score is: " + main.getSessionHighscore(), 250, 100, 300, Align.center, false);
         }
-        bigFont.draw(batch, "Your session high-score is: " + main.getSessionHighscore(), 250, 100, 300, Align.center, false);
+        bigFont.draw(batch, "Your all-time highscore is: " + main.getAllTimeHighscore(), 250, 50, 300, Align.center, false);
+
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
