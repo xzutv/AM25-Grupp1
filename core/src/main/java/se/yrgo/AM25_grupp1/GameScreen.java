@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -102,7 +103,11 @@ public class GameScreen implements Screen {
         bigFont.draw(batch, "Points: " + points, 50, 450, 200, Align.topLeft, false);
         batch.end();
         input(delta);
-        logic();
+        try {
+            logic();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -131,7 +136,7 @@ public class GameScreen implements Screen {
         }
     }
 
-    private void logic() {
+    private void logic() throws IOException {
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
 
@@ -166,9 +171,11 @@ public class GameScreen implements Screen {
             } else if (charRectangle.overlaps(pipeTopRectangle) || charRectangle.overlaps(pipeBottomRectangle)) {
                 pipeArray.removeIndex(i);
                 main.setRoundScore(points);
+
                 main.create();
             } else if (charRectangle.getY() < 0) {
                 main.setRoundScore(points);
+
                 main.create();
             }
         }
