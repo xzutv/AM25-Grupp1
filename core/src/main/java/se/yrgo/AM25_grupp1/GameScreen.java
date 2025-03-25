@@ -49,10 +49,10 @@ public class GameScreen implements Screen {
     private int points;
 
     private SpriteBatch batch;
-    private BitmapFont bigFont;
+    private BitmapFont smallFont;
 
-    private float scaleFactor;
-    private float baseFontSize;
+    private float width;
+    private float height;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -81,26 +81,32 @@ public class GameScreen implements Screen {
         this.scoreTimer = -.8f;
         this.animTimer = 0f;
 
+        this.width = Gdx.graphics.getWidth();
+        this.height = Gdx.graphics.getHeight();
+
         this.batch = new SpriteBatch();
-        this.bigFont = new BitmapFont();
-        this.scaleFactor = viewport.getWorldWidth() / 800f;
-        this.baseFontSize = 100.0f;
 
         final Color fontColor = Color.SCARLET;
-        this.bigFont.setColor(fontColor);
-        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        this.bigFont.getData().setScale(baseFontSize * scaleFactor);
+
+        this.smallFont = new BitmapFont();
+        this.smallFont.setColor(fontColor);
+        this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        this.smallFont.getData().setScale(width / 400);
     }
 
     @Override
     public void show() {
+
     }
 
     @Override
     public void render(float delta) {
+        System.out.println("WorldWidth: " + Gdx.graphics.getWidth());
+        System.out.println("WorldHeight: " + Gdx.graphics.getHeight());
         draw();
         batch.begin();
-        bigFont.draw(batch, "Points: " + points, 50, 450, 200, Align.topLeft, false);
+        smallFont.draw(batch, "Score: " + points, width / 30, height * .95f, 200, Align.left, false);
+        smallFont.draw(batch, "Best: " + main.getAllTimeHighscore(), width / 26, height * .88f, 300, Align.left, false);
         batch.end();
         input(delta);
         try {
@@ -118,21 +124,14 @@ public class GameScreen implements Screen {
     private void input(float delta) {
         animTimer += delta;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             animTimer = 0f;
             velocity = speed;
             charSprite.setTexture(charAnimationTexture);
         }
 
-
         if (animTimer >= 0.4f) {
             charSprite.setTexture(charTexture);
-        }
-
-        if (Gdx.input.isTouched()) {
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY());
-            viewport.unproject(touchPos);
-            charSprite.setCenterX(touchPos.x);
         }
     }
 

@@ -29,8 +29,8 @@ public class FirstScreen implements Screen {
     private BitmapFont bigFont;
     private BitmapFont smallFont;
 
-    private float scaleFactor;
-    private float baseFontSize;
+    private float width;
+    private float height;
 
     public FirstScreen(Main main) {
         this.main = main;
@@ -45,23 +45,25 @@ public class FirstScreen implements Screen {
 
         this.batch = new SpriteBatch();
         this.bigFont = new BitmapFont();
-//        this.scaleFactor = viewport.getWorldWidth() / 800f;
-//        this.baseFontSize = 100.0f;
+
+        this.width = Gdx.graphics.getWidth();
+        this.height = Gdx.graphics.getHeight();
 
         final Color fontColor = Color.SCARLET;
         this.bigFont.setColor(fontColor);
         this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        this.bigFont.getData().setScale(2.5f);
+        this.bigFont.getData().setScale(width / 300);
 
         this.smallFont = new BitmapFont();
         this.smallFont.setColor(fontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        this.smallFont.getData().setScale(1.5f);
+        this.smallFont.getData().setScale(width / 400);
     }
 
     @Override
     public void dispose() {
         bigFont.dispose();
+        smallFont.dispose();
         batch.dispose();
         spriteBatch.dispose();
         charSprite.getTexture().dispose();
@@ -72,8 +74,7 @@ public class FirstScreen implements Screen {
         try {
             if (main.getSessionHighscore() > main.getAllTimeHighscore()) {
                 main.updateAllTimeHighscore(main.getSessionHighscore());
-            }
-            else {
+            } else {
                 main.updateAllTimeHighscore(main.getAllTimeHighscore());
             }
         } catch (IOException e) {
@@ -82,29 +83,30 @@ public class FirstScreen implements Screen {
     }
 
     @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
+    }
+
+    @Override
     public void render(float delta) {
         draw();
         batch.begin();
-        bigFont.draw(batch, "Press space to start!", 250, 200, 300, Align.center, false);
+        bigFont.draw(batch, "Press space to start!", width / 3.5f, height / 2.5f, 300, Align.left ,false);
         if (!main.isFirstRound()) {
-            String roundPoints = String.format("You scored: %d", main.getRoundScore());
-            smallFont.draw(batch, roundPoints, 250, 150, 300, Align.center, false);
-            bigFont.draw(batch, "Your session high-score is: " + main.getSessionHighscore(), 250, 100, 300, Align.center, false);
+            String roundPoints = String.format("Score: %d", main.getRoundScore());
+            smallFont.draw(batch, roundPoints, width / 30, height * .95f, 300, Align.left, false);
+            smallFont.draw(batch, "Session best: " + main.getSessionHighscore(), width / 30, height * .88f, 300, Align.left, false);
+            smallFont.draw(batch, "Best: " + main.getAllTimeHighscore(), width / 26, height * .81f, 300, Align.left, false);
         }
-        bigFont.draw(batch, "Your all-time highscore is: " + main.getAllTimeHighscore(), 250, 50, 300, Align.center, false);
 
         batch.end();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             main.setFirstRound(false);
             main.startGame();
         }
     }
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-    }
 
     private void draw() {
         ScreenUtils.clear(Color.BLACK);
