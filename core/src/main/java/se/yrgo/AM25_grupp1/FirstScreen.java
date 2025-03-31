@@ -6,7 +6,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -18,12 +17,10 @@ import java.io.IOException;
  */
 public class FirstScreen implements Screen {
     private Main main;
-    private Texture charTexture;
-    private Texture backgroundTexture;
-
-    private Sprite charSprite;
-    private SpriteBatch spriteBatch;
     private FitViewport viewport;
+    private Character character;
+    private Texture backgroundTexture;
+    private SpriteBatch spriteBatch;
 
     private SpriteBatch batch;
     private BitmapFont bigFont;
@@ -35,19 +32,15 @@ public class FirstScreen implements Screen {
     public FirstScreen(Main main) {
         this.main = main;
         this.viewport = new FitViewport(16, 10);
-        this.charTexture = new Texture("character.png");
+        this.character = new Character();
         this.backgroundTexture = new Texture("background2.png");
-
-        this.charSprite = new Sprite(charTexture);
-        charSprite.setSize(1, 1);
-        charSprite.setPosition(7, 6);
         this.spriteBatch = new SpriteBatch();
-
-        this.batch = new SpriteBatch();
-        this.bigFont = new BitmapFont();
 
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
+
+        this.batch = new SpriteBatch();
+        this.bigFont = new BitmapFont();
 
         final Color fontColor = Color.SCARLET;
         this.bigFont.setColor(fontColor);
@@ -66,7 +59,7 @@ public class FirstScreen implements Screen {
         smallFont.dispose();
         batch.dispose();
         spriteBatch.dispose();
-        charSprite.getTexture().dispose();
+        character.getCharSprite().getTexture().dispose();
     }
 
     @Override
@@ -118,11 +111,10 @@ public class FirstScreen implements Screen {
         float worldHeight = viewport.getWorldHeight();
 
         spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
-        charSprite.draw(spriteBatch);
+        character.getCharSprite().draw(spriteBatch);
 
         spriteBatch.end();
     }
-
 
     @Override
     public void pause() {

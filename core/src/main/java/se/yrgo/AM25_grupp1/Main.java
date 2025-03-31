@@ -61,6 +61,8 @@ public class Main extends Game {
         if (!Files.exists(filename)) {
             try (BufferedWriter bw = Files.newBufferedWriter(filename)) {
                 bw.write(Integer.toString(sessionHighscore));
+            } catch (IOException e) {
+                throw new RuntimeException("Error when writing to file: " + e.getMessage());
             }
         } else {
             try (BufferedReader br = Files.newBufferedReader(filename);
@@ -75,6 +77,8 @@ public class Main extends Game {
                         allTimeHighscore = oldAllTimeHighscore;
                     }
                 }
+            } catch (IOException e) {
+                throw new RuntimeException("Error when reading from/writing to file: " + e.getMessage());
             }
         }
     }
