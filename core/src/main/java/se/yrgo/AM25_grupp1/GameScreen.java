@@ -8,43 +8,27 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import java.io.IOException;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * First screen of the application. Displayed after the application is created.
  */
 public class GameScreen implements Screen {
     private Main main;
-    private Texture charTexture;
-    private Texture charAnimationTexture;
-    private Texture backgroundTexture;
-    private Texture pipeTopTexture;
-    private Texture pipeBottomTexture;
-
-    private Array<Sprite> pipeArray;
-    private float pipeTimer;
-    private float scoreTimer;
-    private float animTimer;
-    private Rectangle pipeTopRectangle;
-    private Rectangle pipeBottomRectangle;
-
-    private Sprite charSprite;
-    private SpriteBatch spriteBatch;
     private FitViewport viewport;
+    private Character character;
+    private Obstacle obstacle;
+    private Texture backgroundTexture;
+    private SpriteBatch spriteBatch;
 
-    private Rectangle charRectangle;
-    private Vector2 touchPos;
+    private float obstacleTimer;
+    private float scoreTimer;
+    private float animationTimer;
 
-    private final float speed = 5f;
+    private final float SPEED = 5f;
     private float velocity;
-    private final float gravity = -.2f;
+    private final float GRAVITY = -.2f;
 
     private int points;
 
@@ -57,29 +41,16 @@ public class GameScreen implements Screen {
     public GameScreen(Main main) {
         this.main = main;
         this.viewport = new FitViewport(16, 10);
-        this.charTexture = new Texture("character.png");
-        this.charAnimationTexture = new Texture("characterAnimation.png");
+        this.character = new Character();
+        this.obstacle = new Obstacle();
         this.backgroundTexture = new Texture("background2.png");
-        this.pipeBottomTexture = new Texture("pipe-bottom.png");
-        this.pipeTopTexture = new Texture("pipe-top.png");
-
-        this.charSprite = new Sprite(charTexture);
-        charSprite.setSize(1, 1);
-        charSprite.setPosition(7, 6);
-        this.charRectangle = new Rectangle();
         this.spriteBatch = new SpriteBatch();
 
-        this.touchPos = new Vector2();
+        obstacle.createObstacles(viewport);
 
-        this.pipeArray = new Array<>();
-        this.pipeTopRectangle = new Rectangle();
-        this.pipeBottomRectangle = new Rectangle();
-
-        createPipes();
-
-        this.pipeTimer = 0f;
+        this.obstacleTimer = 0f;
         this.scoreTimer = -.8f;
-        this.animTimer = 0f;
+        this.animationTimer = 0f;
 
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
@@ -101,19 +72,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        System.out.println("WorldWidth: " + Gdx.graphics.getWidth());
-        System.out.println("WorldHeight: " + Gdx.graphics.getHeight());
         draw();
         batch.begin();
         smallFont.draw(batch, "Score: " + points, width / 30, height * .95f, 200, Align.left, false);
         smallFont.draw(batch, "Best: " + main.getAllTimeHighscore(), width / 26, height * .88f, 300, Align.left, false);
         batch.end();
         input(delta);
-        try {
-            logic();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        logic(delta);
     }
 
     @Override
@@ -122,64 +87,40 @@ public class GameScreen implements Screen {
     }
 
     private void input(float delta) {
-        animTimer += delta;
+        animationTimer += delta;
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
-            animTimer = 0f;
-            velocity = speed;
-            charSprite.setTexture(charAnimationTexture);
+            animationTimer = 0f;
+            velocity = SPEED;
+            character.animateCharacter();
         }
 
-        if (animTimer >= 0.4f) {
-            charSprite.setTexture(charTexture);
+        if (animationTimer >= 0.4f) {
+            character.animateBackToDefault();
         }
     }
 
-    private void logic() throws IOException {
-        float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight();
+    private void logic(Float delta) {
+        character.createCharacterHitbox();
 
-        float charWidth = charSprite.getWidth();
-        float charHeight = charSprite.getHeight();
+        velocity += GRAVITY;
+        character.applyGravityToCharacter(velocity, delta);
+        character.restrictOutOfBoundsMovement(viewport);
 
-        float delta = Gdx.graphics.getDeltaTime();
-        charRectangle.set(charSprite.getX(), charSprite.getY(), (charWidth * .9f), (charHeight * .8f));
+        for (int i = obstacle.getObstacleArray().size - 1; i >= 0; i--) {
+            obstacle.createObstacleMechanics(i, delta);
 
-        velocity += gravity;
-        charSprite.translateY(velocity * delta);
-
-        charSprite.setY(MathUtils.clamp(charSprite.getY(), 0 - charHeight, worldHeight - charHeight));
-
-        for (int i = pipeArray.size - 1; i >= 0; i--) {
-            Sprite pipeSpriteTop = pipeArray.get(i);
-            float pipeTopWidth = pipeSpriteTop.getWidth();
-            float pipeTopHeight = pipeSpriteTop.getHeight();
-
-            Sprite pipeSpriteBottom = pipeArray.get(i);
-            float pipeBottomWidth = pipeSpriteBottom.getWidth();
-            float pipeBottomHeight = pipeSpriteBottom.getHeight();
-
-            pipeArray.get(i).translateX(-3f * delta);
-
-            pipeBottomRectangle.set(pipeSpriteBottom.getX(), pipeSpriteBottom.getY(), pipeBottomWidth, pipeBottomHeight);
-            pipeTopRectangle.set(pipeSpriteTop.getX(), pipeSpriteTop.getY(), pipeTopWidth, pipeTopHeight);
-
-
-            if (pipeSpriteBottom.getX() < -pipeBottomWidth) {
-                pipeArray.removeIndex(i);
-            } else if (charRectangle.overlaps(pipeTopRectangle) || charRectangle.overlaps(pipeBottomRectangle)) {
-                pipeArray.removeIndex(i);
+            if (obstacle.characterHitsObstacle(character)) {
+                obstacle.getObstacleArray().removeIndex(i);
                 main.setRoundScore(points);
-
                 main.create();
-            } else if (charRectangle.getY() < 0) {
+            } else if (character.getCharRectangle().getY() < 0) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
-
                 main.create();
             }
         }
 
-        pipeTimer += delta; // Adds the current delta to the timer
+        obstacleTimer += delta; // Adds the current delta to the timer
         scoreTimer += delta;
         if (scoreTimer > 2f) {
             points++;
@@ -189,9 +130,9 @@ public class GameScreen implements Screen {
             scoreTimer = 0f;
         }
 
-        if (pipeTimer > 2f) { // Check if it has been more than given seconds
-            pipeTimer = 0; // reset timer
-            createPipes();
+        if (obstacleTimer > 2f) { // Check if it has been more than given seconds
+            obstacleTimer = 0; // reset timer
+            obstacle.createObstacles(viewport);
         }
     }
 
@@ -205,41 +146,14 @@ public class GameScreen implements Screen {
         float worldHeight = viewport.getWorldHeight();
 
         spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
-        charSprite.draw(spriteBatch);
+        character.getCharSprite().draw(spriteBatch);
 
         // draw each sprite
-        for (Sprite pipeSprite : pipeArray) {
+        for (Sprite pipeSprite : obstacle.getObstacleArray()) {
             pipeSprite.draw(spriteBatch);
         }
 
         spriteBatch.end();
-    }
-
-    private void createPipes() {
-        // create local variables for convenience
-        float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight();
-
-        float pipeWidth = 1f;
-        float pipeHeight = 5f;
-        float gap = 4f;
-
-        float pipeHeightBottom = ThreadLocalRandom.current().nextFloat(pipeHeight) + 2;
-        float pipeHeightTop = worldHeight + 3 - pipeHeightBottom - gap;
-
-
-        Sprite pipeSpriteBottom = new Sprite(pipeBottomTexture);
-        Sprite pipeSpriteTop = new Sprite(pipeTopTexture);
-
-        pipeSpriteBottom.setSize(pipeWidth, pipeHeightBottom);
-        pipeSpriteBottom.setX(worldWidth);
-        pipeSpriteBottom.setY(-1);
-
-        pipeSpriteTop.setSize(pipeWidth, pipeHeightTop);
-        pipeSpriteTop.setX(worldWidth);
-        pipeSpriteTop.setY(worldHeight + 1 - pipeHeightTop);
-        pipeArray.add(pipeSpriteBottom, pipeSpriteTop); // Add bot pipe to the list
-
     }
 
     @Override
