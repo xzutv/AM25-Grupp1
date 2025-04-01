@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
  */
 public class GameScreen implements Screen {
     private Main main;
+    private HighscoreManager highscoreManager;
     private FitViewport viewport;
     private Character character;
     private Obstacle obstacle;
@@ -40,6 +41,7 @@ public class GameScreen implements Screen {
 
     public GameScreen(Main main) {
         this.main = main;
+        this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
         this.character = new Character();
         this.obstacle = new Obstacle();
@@ -56,9 +58,7 @@ public class GameScreen implements Screen {
         this.height = Gdx.graphics.getHeight();
 
         this.batch = new SpriteBatch();
-
         final Color fontColor = Color.SCARLET;
-
         this.smallFont = new BitmapFont();
         this.smallFont.setColor(fontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -75,7 +75,7 @@ public class GameScreen implements Screen {
         draw();
         batch.begin();
         smallFont.draw(batch, "Score: " + points, width / 30, height * .95f, 200, Align.left, false);
-        smallFont.draw(batch, "Best: " + main.getAllTimeHighscore(), width / 26, height * .88f, 300, Align.left, false);
+        smallFont.draw(batch, "Best: " + highscoreManager.getBestScore(), width / 26, height * .88f, 300, Align.left, false);
         batch.end();
         input(delta);
         logic(delta);
@@ -102,21 +102,19 @@ public class GameScreen implements Screen {
 
     private void logic(Float delta) {
         character.createCharacterHitbox();
-
         velocity += GRAVITY;
         character.applyGravityToCharacter(velocity, delta);
         character.restrictOutOfBoundsMovement(viewport);
 
         for (int i = obstacle.getObstacleArray().size - 1; i >= 0; i--) {
             obstacle.createObstacleMechanics(i, delta);
-
             if (obstacle.characterHitsObstacle(character)) {
                 obstacle.getObstacleArray().removeIndex(i);
                 main.setRoundScore(points);
-                main.create();
+                main.goToGameOverScreen();
             } else if (character.getCharRectangle().getY() < 0) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
-                main.create();
+                main.goToGameOverScreen();
             }
         }
 
@@ -124,9 +122,6 @@ public class GameScreen implements Screen {
         scoreTimer += delta;
         if (scoreTimer > 2f) {
             points++;
-            if (points > main.getSessionHighscore()) {
-                main.setSessionHighscore(points);
-            }
             scoreTimer = 0f;
         }
 
@@ -149,8 +144,8 @@ public class GameScreen implements Screen {
         character.getCharSprite().draw(spriteBatch);
 
         // draw each sprite
-        for (Sprite pipeSprite : obstacle.getObstacleArray()) {
-            pipeSprite.draw(spriteBatch);
+        for (Sprite obstacleSprite : obstacle.getObstacleArray()) {
+            obstacleSprite.draw(spriteBatch);
         }
 
         spriteBatch.end();

@@ -10,13 +10,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-import java.io.IOException;
-
 /**
  * First screen of the application. Displayed after the application is created.
  */
 public class FirstScreen implements Screen {
+
     private Main main;
+    private HighscoreManager highscoreManager;
     private FitViewport viewport;
     private Character character;
     private Texture backgroundTexture;
@@ -30,7 +30,9 @@ public class FirstScreen implements Screen {
     private float height;
 
     public FirstScreen(Main main) {
+
         this.main = main;
+        this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
         this.character = new Character();
         this.backgroundTexture = new Texture("background2.png");
@@ -64,15 +66,6 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
-        try {
-            if (main.getSessionHighscore() > main.getAllTimeHighscore()) {
-                main.updateAllTimeHighscore(main.getSessionHighscore());
-            } else {
-                main.updateAllTimeHighscore(main.getAllTimeHighscore());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -88,8 +81,7 @@ public class FirstScreen implements Screen {
         if (!main.isFirstRound()) {
             String roundPoints = String.format("Score: %d", main.getRoundScore());
             smallFont.draw(batch, roundPoints, width / 30, height * .95f, 300, Align.left, false);
-            smallFont.draw(batch, "Session best: " + main.getSessionHighscore(), width / 30, height * .88f, 300, Align.left, false);
-            smallFont.draw(batch, "Best: " + main.getAllTimeHighscore(), width / 26, height * .81f, 300, Align.left, false);
+            smallFont.draw(batch, "Best: " + highscoreManager.getBestScore(), width / 26, height * .88f, 300, Align.left, false);
         }
 
         batch.end();
@@ -130,5 +122,4 @@ public class FirstScreen implements Screen {
     public void hide() {
         // This method is called when another screen replaces this one.
     }
-
 }
