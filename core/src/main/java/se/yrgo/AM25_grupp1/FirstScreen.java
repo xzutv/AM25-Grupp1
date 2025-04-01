@@ -39,7 +39,7 @@ public class FirstScreen implements Screen {
         this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
         this.character = new Character();
-        this.backgroundTexture = new Texture("background2.png");
+        this.backgroundTexture = new Texture("background-game.png");
         this.spriteBatch = new SpriteBatch();
 
         this.width = Gdx.graphics.getWidth();
@@ -58,12 +58,12 @@ public class FirstScreen implements Screen {
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
 
-        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("cartoon-jump.mp3"));
-        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game-music.mp3"));
+        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
+        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sound-music.mp3"));
 
-        gameMusic.setLooping(true);
-        gameMusic.setVolume(.5f);
-        gameMusic.play();
+        this.gameMusic.setLooping(true);
+        this.gameMusic.setVolume(.5f);
+        this.gameMusic.play();
     }
 
     @Override
@@ -73,6 +73,8 @@ public class FirstScreen implements Screen {
         batch.dispose();
         spriteBatch.dispose();
         character.getCharSprite().getTexture().dispose();
+        gameMusic.dispose();
+
     }
 
     @Override
@@ -99,6 +101,7 @@ public class FirstScreen implements Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             jumpSound.play();
+            gameMusic.stop();
             main.setFirstRound(false);
             main.startGame();
         }

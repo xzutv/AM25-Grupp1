@@ -17,8 +17,8 @@ public class Obstacle {
     private Array<Sprite> obstacleArray;
 
     public Obstacle() {
-        this.obstacleBottomTexture = new Texture("pipe-bottom.png");
-        this.obstacleTopTexture = new Texture("pipe-top.png");
+        this.obstacleBottomTexture = new Texture("pillar-bottom.png");
+        this.obstacleTopTexture = new Texture("pillar-top.png");
 
         this.obstacleTopRectangle = new Rectangle();
         this.obstacleBottomRectangle = new Rectangle();
