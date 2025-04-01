@@ -8,17 +8,19 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class Character {
     private Texture charTexture;
-    private Texture charAnimationTexture;
+    private Texture charFirstAnimationTexture;
+    private Texture charSecondAnimationTexture;
     private Sprite charSprite;
     private Rectangle charRectangle;
     private float charWidth;
     private float charHeight;
 
     public Character() {
-        this.charTexture = new Texture("character.png");
-        this.charAnimationTexture = new Texture("characterAnimation.png");
+        this.charTexture = new Texture("character_normal.png");
+        this.charFirstAnimationTexture = new Texture("character_Up.png");
+        this.charSecondAnimationTexture = new Texture("character_Down.png");
         this.charSprite = new Sprite(charTexture);
-        this.charSprite.setSize(1, 1);
+        this.charSprite.setSize(1.5f, 1.5f);
         this.charSprite.setPosition(7, 6);
         this.charRectangle = new Rectangle();
 
@@ -35,7 +37,11 @@ public class Character {
     }
 
     public void animateCharacter() {
-        charSprite.setTexture(charAnimationTexture);
+        charSprite.setTexture(charFirstAnimationTexture);
+    }
+
+    public void animateDown() {
+        charSprite.setTexture(charSecondAnimationTexture);
     }
 
     public void animateBackToDefault() {

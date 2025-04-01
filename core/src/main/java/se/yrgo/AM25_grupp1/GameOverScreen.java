@@ -16,6 +16,8 @@ public class GameOverScreen implements Screen {
     private Main main;
     private HighscoreManager highscoreManager;
     private FitViewport viewport;
+    private Texture backgroundTexture;
+    private SpriteBatch spriteBatch;
     private SpriteBatch batch;
     private BitmapFont bigFont;
     private BitmapFont smallFont;
@@ -31,6 +33,8 @@ public class GameOverScreen implements Screen {
         this.main = main;
         this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
+        this.backgroundTexture = new Texture("background-gameover.png");
+        this.spriteBatch = new SpriteBatch();
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
 
@@ -67,8 +71,8 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        draw();
         batch.begin();
-        ScreenUtils.clear(Color.GOLDENROD);
         if (hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore()) {
             printStandardText();
             printScore();
@@ -142,6 +146,17 @@ public class GameOverScreen implements Screen {
     }
 
     private void draw() {
+        ScreenUtils.clear(Color.BLACK);
+        viewport.apply();
+        spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
+        spriteBatch.begin();
+
+        float worldWidth = viewport.getWorldWidth();
+        float worldHeight = viewport.getWorldHeight();
+
+        spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
+
+        spriteBatch.end();
     }
 
     @Override

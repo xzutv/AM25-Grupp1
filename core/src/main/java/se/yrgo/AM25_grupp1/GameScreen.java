@@ -50,7 +50,7 @@ public class GameScreen implements Screen {
         this.viewport = new FitViewport(16, 10);
         this.character = new Character();
         this.obstacle = new Obstacle();
-        this.backgroundTexture = new Texture("background2.png");
+        this.backgroundTexture = new Texture("background-game.png");
         this.spriteBatch = new SpriteBatch();
 
         obstacle.createObstacles(viewport);
@@ -69,17 +69,16 @@ public class GameScreen implements Screen {
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
 
-        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("cartoon-jump.mp3"));
-        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game-music.mp3"));
+        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
+        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sound-music.mp3"));
 
-        gameMusic.setLooping(true);
-        gameMusic.setVolume(.5f);
-        gameMusic.play();
+        this.gameMusic.setLooping(true);
+        this.gameMusic.setVolume(.5f);
+        this.gameMusic.play();
     }
 
     @Override
     public void show() {
-
     }
 
     @Override
@@ -107,9 +106,11 @@ public class GameScreen implements Screen {
             jumpSound.play();
             character.animateCharacter();
         }
-
-        if (animationTimer >= 0.4f) {
+        if (animationTimer >= 0.1f) {
             character.animateBackToDefault();
+        }
+        if (animationTimer >= 0.2f) {
+            character.animateDown();
         }
     }
 
@@ -124,9 +125,11 @@ public class GameScreen implements Screen {
             if (obstacle.characterHitsObstacle(character)) {
                 obstacle.getObstacleArray().removeIndex(i);
                 main.setRoundScore(points);
+                gameMusic.stop();
                 main.goToGameOverScreen();
             } else if (character.getCharRectangle().getY() < 0) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
+                gameMusic.stop();
                 main.goToGameOverScreen();
             }
         }
@@ -181,6 +184,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        // Destroy screen's assets here.
+        gameMusic.dispose();
     }
 }
