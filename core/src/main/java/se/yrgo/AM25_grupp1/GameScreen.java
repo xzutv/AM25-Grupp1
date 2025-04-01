@@ -3,6 +3,8 @@ package se.yrgo.AM25_grupp1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -39,6 +41,9 @@ public class GameScreen implements Screen {
     private float width;
     private float height;
 
+    private Sound jumpSound;
+    private Music gameMusic;
+
     public GameScreen(Main main) {
         this.main = main;
         this.highscoreManager = new HighscoreManager();
@@ -63,6 +68,13 @@ public class GameScreen implements Screen {
         this.smallFont.setColor(fontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
+
+        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("cartoon-jump.mp3"));
+        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game-music.mp3"));
+
+        gameMusic.setLooping(true);
+        gameMusic.setVolume(.5f);
+        gameMusic.play();
     }
 
     @Override
@@ -92,6 +104,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             animationTimer = 0f;
             velocity = SPEED;
+            jumpSound.play();
             character.animateCharacter();
         }
 

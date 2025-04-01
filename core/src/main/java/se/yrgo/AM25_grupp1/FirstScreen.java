@@ -3,6 +3,8 @@ package se.yrgo.AM25_grupp1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -29,8 +31,10 @@ public class FirstScreen implements Screen {
     private float width;
     private float height;
 
-    public FirstScreen(Main main) {
+    private Sound jumpSound;
+    private Music gameMusic;
 
+    public FirstScreen(Main main) {
         this.main = main;
         this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
@@ -53,6 +57,13 @@ public class FirstScreen implements Screen {
         this.smallFont.setColor(fontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
+
+        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("cartoon-jump.mp3"));
+        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game-music.mp3"));
+
+        gameMusic.setLooping(true);
+        gameMusic.setVolume(.5f);
+        gameMusic.play();
     }
 
     @Override
@@ -87,6 +98,7 @@ public class FirstScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
+            jumpSound.play();
             main.setFirstRound(false);
             main.startGame();
         }
