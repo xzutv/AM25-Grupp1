@@ -63,7 +63,7 @@ public class GameScreen implements Screen {
         this.height = Gdx.graphics.getHeight();
 
         this.batch = new SpriteBatch();
-        final Color fontColor = Color.SCARLET;
+        final Color fontColor = Color.BLACK;
         this.smallFont = new BitmapFont();
         this.smallFont.setColor(fontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -103,7 +103,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             animationTimer = 0f;
             velocity = SPEED;
-            jumpSound.play();
+            jumpSound.play(.2f);
             character.animateCharacter();
         }
         if (animationTimer >= 0.1f) {
