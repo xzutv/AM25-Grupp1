@@ -44,6 +44,8 @@ public class GameScreen implements Screen {
     private Sound jumpSound;
     private Music gameMusic;
 
+    private boolean paused;
+
     public GameScreen(Main main) {
         this.main = main;
         this.highscoreManager = new HighscoreManager();
@@ -75,6 +77,8 @@ public class GameScreen implements Screen {
         this.gameMusic.setLooping(true);
         this.gameMusic.setVolume(.5f);
         this.gameMusic.play();
+
+        this.paused = false;
     }
 
     @Override
@@ -88,8 +92,13 @@ public class GameScreen implements Screen {
         smallFont.draw(batch, "Score: " + points, width / 30, height * .95f, 200, Align.left, false);
         smallFont.draw(batch, "Best: " + highscoreManager.getBestScore(), width / 26, height * .88f, 300, Align.left, false);
         batch.end();
-        input(delta);
-        logic(delta);
+        if (!paused) {
+            input(delta);
+            logic(delta);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            paused = !paused;
+        }
     }
 
     @Override

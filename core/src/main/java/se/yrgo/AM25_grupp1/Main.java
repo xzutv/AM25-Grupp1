@@ -1,9 +1,6 @@
 package se.yrgo.AM25_grupp1;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
