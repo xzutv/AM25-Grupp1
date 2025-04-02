@@ -3,7 +3,6 @@ package se.yrgo.AM25_grupp1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,7 +15,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
  * First screen of the application. Displayed after the application is created.
  */
 public class FirstScreen implements Screen {
-
     private Main main;
     private HighscoreManager highscoreManager;
     private FitViewport viewport;
@@ -32,7 +30,6 @@ public class FirstScreen implements Screen {
     private float height;
 
     private Sound jumpSound;
-    private Music gameMusic;
 
     public FirstScreen(Main main) {
         this.main = main;
@@ -48,22 +45,18 @@ public class FirstScreen implements Screen {
         this.batch = new SpriteBatch();
         this.bigFont = new BitmapFont();
 
-        final Color fontColor = Color.SCARLET;
-        this.bigFont.setColor(fontColor);
+        final Color smallFontColor = Color.BLACK;
+        final Color bigFontColor = Color.WHITE;
+        this.bigFont.setColor(bigFontColor);
         this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.bigFont.getData().setScale(width / 300);
 
         this.smallFont = new BitmapFont();
-        this.smallFont.setColor(fontColor);
+        this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
 
         this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
-        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sound-music.mp3"));
-
-        this.gameMusic.setLooping(true);
-        this.gameMusic.setVolume(.5f);
-        this.gameMusic.play();
     }
 
     @Override
@@ -73,8 +66,6 @@ public class FirstScreen implements Screen {
         batch.dispose();
         spriteBatch.dispose();
         character.getCharSprite().getTexture().dispose();
-        gameMusic.dispose();
-
     }
 
     @Override
@@ -92,19 +83,24 @@ public class FirstScreen implements Screen {
         draw();
         batch.begin();
         bigFont.draw(batch, "Press space to start!", width / 3.5f, height / 2.5f, 300, Align.left ,false);
+        bigFont.draw(batch, "Press \"H\" to see highscore", width / 4.5f, height / 3.5f, 300, Align.left ,false);
         if (!main.isFirstRound()) {
             String roundPoints = String.format("Score: %d", main.getRoundScore());
             smallFont.draw(batch, roundPoints, width / 30, height * .95f, 300, Align.left, false);
             smallFont.draw(batch, "Best: " + highscoreManager.getBestScore(), width / 26, height * .88f, 300, Align.left, false);
         }
-
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
-            jumpSound.play();
-            gameMusic.stop();
+            jumpSound.play(.1f);
             main.setFirstRound(false);
             main.startGame();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
+            main.stopMusic();
+            main.setSeeHighscore(true);
+            main.goToGameOverScreen();
         }
     }
 

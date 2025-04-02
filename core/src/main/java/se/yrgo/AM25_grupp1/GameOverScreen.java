@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+
 import java.util.ArrayList;
 
 public class GameOverScreen implements Screen {
@@ -41,13 +42,14 @@ public class GameOverScreen implements Screen {
         this.batch = new SpriteBatch();
         this.bigFont = new BitmapFont();
 
-        final Color fontColor = Color.BLACK;
-        this.bigFont.setColor(fontColor);
+        final Color smallFontColor = Color.BLACK;
+        final Color bigFontColor = Color.WHITE;
+        this.bigFont.setColor(bigFontColor);
         this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.bigFont.getData().setScale(width / 300);
 
         this.smallFont = new BitmapFont();
-        this.smallFont.setColor(fontColor);
+        this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
     }
@@ -73,14 +75,20 @@ public class GameOverScreen implements Screen {
     public void render(float delta) {
         draw();
         batch.begin();
-        if (hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore()) {
+
+        if (main.isSeeHighscore()) {
+            bigFont.draw(batch, "Press space to return!", width / 3.9f, height / 3.5f, 300, Align.left, false);
+            printHighscores();
+        }
+
+        if (((hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore() || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
             printStandardText();
             printScore();
             printHighscores();
         }
 
         if (main.getRoundScore() > highscoreManager.getLowestHighscore() ||
-            highscoreManager.getHighscores().size() < 5) {
+                (highscoreManager.getHighscores().size() < 5) && main.getRoundScore() > 0) {
             printScore();
             if (isEnteringName && !hasEnteredName) {
                 bigFont.draw(batch, "Enter your name: " + playerName, width / 3.3f, height / 2.5f, 300, Align.left, false);
@@ -92,6 +100,9 @@ public class GameOverScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (main.isSeeHighscore()) {
+                main.setSeeHighscore(false);
+            }
             main.create();
         }
 
@@ -120,8 +131,8 @@ public class GameOverScreen implements Screen {
         ArrayList<HighscoreManager.ScoreEntry> highScores = highscoreManager.getHighscores();
         for (int i = 0; i < highScores.size(); i++) {
             smallFont.draw(batch,
-                (i + 1) + ". " + highScores.get(i).name + " - " + highScores.get(i).score,
-                width / 2.6f, height * heightCounter, 300, Align.left, false);
+                    (i + 1) + ". " + highScores.get(i).name + " - " + highScores.get(i).score,
+                    width / 2.6f, height * heightCounter, 300, Align.left, false);
             heightCounter -= .07f;
         }
     }
@@ -129,11 +140,13 @@ public class GameOverScreen implements Screen {
     private void handleTextInput() {
         for (int key = Input.Keys.A; key <= Input.Keys.Z; key++) {
             if (Gdx.input.isKeyJustPressed(key)) {
-                playerName += Input.Keys.toString(key);
+                if (playerName.length() < 10) {
+                    playerName += Input.Keys.toString(key);
+                }
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && playerName.length() > 0) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && !playerName.isEmpty()) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
 
@@ -174,6 +187,3 @@ public class GameOverScreen implements Screen {
         // This method is called when another screen replaces this one.
     }
 }
-
-
-
