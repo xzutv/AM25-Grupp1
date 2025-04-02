@@ -75,7 +75,13 @@ public class GameOverScreen implements Screen {
     public void render(float delta) {
         draw();
         batch.begin();
-        if (hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore() || main.getRoundScore() == 0) {
+
+        if (main.isSeeHighscore()) {
+            bigFont.draw(batch, "Press space to return!", width / 3.9f, height / 3.5f, 300, Align.left, false);
+            printHighscores();
+        }
+
+        if (((hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore() || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
             printStandardText();
             printScore();
             printHighscores();
@@ -94,6 +100,9 @@ public class GameOverScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (main.isSeeHighscore()) {
+                main.setSeeHighscore(false);
+            }
             main.create();
         }
 
@@ -137,7 +146,7 @@ public class GameOverScreen implements Screen {
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && playerName.length() > 0) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && !playerName.isEmpty()) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
 

@@ -3,7 +3,6 @@ package se.yrgo.AM25_grupp1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -43,7 +42,6 @@ public class GameScreen implements Screen {
     private float height;
 
     private Sound jumpSound;
-    private Music gameMusic;
 
     private boolean paused;
 
@@ -81,11 +79,6 @@ public class GameScreen implements Screen {
         this.bigFont.getData().setScale(width / 300);
 
         this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
-        this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sound-music.mp3"));
-
-        this.gameMusic.setLooping(true);
-        this.gameMusic.setVolume(.5f);
-        this.gameMusic.play();
 
         this.paused = false;
     }
@@ -147,11 +140,11 @@ public class GameScreen implements Screen {
             if (obstacle.characterHitsObstacle(character)) {
                 obstacle.getObstacleArray().removeIndex(i);
                 main.setRoundScore(points);
-                gameMusic.stop();
+                main.stopMusic();
                 main.goToGameOverScreen();
             } else if (character.getCharRectangle().getY() < 0) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
-                gameMusic.stop();
+                main.stopMusic();
                 main.goToGameOverScreen();
             }
         }
@@ -206,6 +199,5 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        gameMusic.dispose();
     }
 }
