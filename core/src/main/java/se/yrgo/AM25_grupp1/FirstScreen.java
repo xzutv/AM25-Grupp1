@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
  * First screen of the application. Displayed after the application is created.
  */
 public class FirstScreen implements Screen {
-
     private Main main;
     private HighscoreManager highscoreManager;
     private FitViewport viewport;
@@ -48,13 +47,14 @@ public class FirstScreen implements Screen {
         this.batch = new SpriteBatch();
         this.bigFont = new BitmapFont();
 
-        final Color fontColor = Color.SCARLET;
-        this.bigFont.setColor(fontColor);
+        final Color smallFontColor = Color.BLACK;
+        final Color bigFontColor = Color.WHITE;
+        this.bigFont.setColor(bigFontColor);
         this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.bigFont.getData().setScale(width / 300);
 
         this.smallFont = new BitmapFont();
-        this.smallFont.setColor(fontColor);
+        this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
 
@@ -100,7 +100,7 @@ public class FirstScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
-            jumpSound.play();
+            jumpSound.play(.1f);
             gameMusic.stop();
             main.setFirstRound(false);
             main.startGame();

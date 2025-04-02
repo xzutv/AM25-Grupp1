@@ -11,7 +11,7 @@ public class HighscoreManager {
     private Preferences prefs;
 
     public HighscoreManager() {
-        prefs = Gdx.app.getPreferences("HighscorePrefs");
+        prefs = Gdx.app.getPreferences("Group1HighscorePrefs");
     }
 
     public static class ScoreEntry {
