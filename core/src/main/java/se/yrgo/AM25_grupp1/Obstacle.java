@@ -13,6 +13,7 @@ public class Obstacle {
     private Texture obstacleBottomTexture;
     private Rectangle obstacleTopRectangle;
     private Rectangle obstacleBottomRectangle;
+    private float speed;
 
     private Array<Sprite> obstacleArray;
 
@@ -23,6 +24,7 @@ public class Obstacle {
         this.obstacleTopRectangle = new Rectangle();
         this.obstacleBottomRectangle = new Rectangle();
 
+        this.speed = 3f;
         this.obstacleArray = new Array<>();
     }
 
@@ -62,7 +64,7 @@ public class Obstacle {
         float obstacleBottomWidth = obstacleSpriteBottom.getWidth();
         float obstacleBottomHeight = obstacleSpriteBottom.getHeight();
 
-        obstacleArray.get(i).translateX(-3f * delta);
+        obstacleArray.get(i).translateX(-speed * delta);
 
         obstacleBottomRectangle.set(obstacleSpriteBottom.getX(), obstacleSpriteBottom.getY(), obstacleBottomWidth, obstacleBottomHeight);
         obstacleTopRectangle.set(obstacleSpriteTop.getX(), obstacleSpriteTop.getY(), obstacleTopWidth, obstacleTopHeight);
@@ -83,5 +85,12 @@ public class Obstacle {
             return true;
         }
         return false;
+    }
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void addSpeed(float change){
+        speed += change;
     }
 }

@@ -70,6 +70,7 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
+        main.setRoundScore(0);
     }
 
     @Override
