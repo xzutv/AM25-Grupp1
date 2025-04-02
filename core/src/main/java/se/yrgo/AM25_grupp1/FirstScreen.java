@@ -74,7 +74,6 @@ public class FirstScreen implements Screen {
         spriteBatch.dispose();
         character.getCharSprite().getTexture().dispose();
         gameMusic.dispose();
-
     }
 
     @Override
