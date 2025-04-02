@@ -26,8 +26,13 @@ public class GameScreen implements Screen {
     private SpriteBatch spriteBatch;
 
     private float obstacleTimer;
+    private float obstacleDelay;
     private float scoreTimer;
+    private float scoreDelay;
+    private float scoreChange;
     private float animationTimer;
+    private int fasterObs;
+    private int fasterLimit;
 
     private final float SPEED = 5f;
     private float velocity;
@@ -56,8 +61,13 @@ public class GameScreen implements Screen {
         obstacle.createObstacles(viewport);
 
         this.obstacleTimer = 0f;
+        this.obstacleDelay = 2f;
         this.scoreTimer = -.8f;
+        this.scoreDelay = 2f;
+        this.scoreChange = 0f;
         this.animationTimer = 0f;
+        this.fasterObs = 2;
+        this.fasterLimit = 0;
 
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
@@ -79,6 +89,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        obstacleDelay = 2f;
+        scoreDelay = 2f;
+        fasterObs = 2;
+
     }
 
     @Override
@@ -136,12 +150,33 @@ public class GameScreen implements Screen {
 
         obstacleTimer += delta; // Adds the current delta to the timer
         scoreTimer += delta;
-        if (scoreTimer > 2f) {
+        if (scoreTimer > scoreDelay && points >= fasterObs && fasterLimit < 3) {
+            points++;
+            scoreDelay -= .25f;
+            scoreTimer = -.25f;
+            scoreChange = 1;
+            System.out.println(scoreDelay);
+        }
+        else if(scoreTimer > scoreDelay && scoreChange > 0){
+            points++;
+            scoreTimer = -.25f;
+            scoreChange -= 1;
+        }
+        else if(scoreTimer > scoreDelay) {
             points++;
             scoreTimer = 0f;
+            System.out.println(fasterObs);
         }
 
-        if (obstacleTimer > 2f) { // Check if it has been more than given seconds
+        if (obstacleTimer > obstacleDelay && points >= fasterObs && fasterLimit < 3) {
+            obstacleDelay -= .15f;
+            obstacleTimer = 0f;
+            fasterObs += 2;
+            fasterLimit += 1;
+            obstacle.addSpeed(.5f);
+            obstacle.createObstacles(viewport);
+        }
+        else if(obstacleTimer > obstacleDelay) { // Check if it has been more than given seconds
             obstacleTimer = 0; // reset timer
             obstacle.createObstacles(viewport);
         }
