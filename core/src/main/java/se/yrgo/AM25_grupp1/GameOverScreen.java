@@ -75,7 +75,7 @@ public class GameOverScreen implements Screen {
     public void render(float delta) {
         draw();
         batch.begin();
-        if (hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore()) {
+        if (hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore() || main.getRoundScore() == 0) {
             printStandardText();
             printScore();
             printHighscores();
