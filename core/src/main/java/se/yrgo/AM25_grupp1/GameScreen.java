@@ -37,6 +37,7 @@ public class GameScreen implements Screen {
 
     private SpriteBatch batch;
     private BitmapFont smallFont;
+    private BitmapFont bigFont;
 
     private float width;
     private float height;
@@ -65,11 +66,19 @@ public class GameScreen implements Screen {
         this.height = Gdx.graphics.getHeight();
 
         this.batch = new SpriteBatch();
-        final Color fontColor = Color.BLACK;
+        final Color smallFontColor = Color.BLACK;
+        final Color bigFontColor = Color.WHITE;
+
         this.smallFont = new BitmapFont();
-        this.smallFont.setColor(fontColor);
+        this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
+
+
+        this.bigFont = new BitmapFont();
+        this.bigFont.setColor(bigFontColor);
+        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        this.bigFont.getData().setScale(width / 300);
 
         this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
         this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sound-music.mp3"));
@@ -91,6 +100,10 @@ public class GameScreen implements Screen {
         batch.begin();
         smallFont.draw(batch, "Score: " + points, width / 30, height * .95f, 200, Align.left, false);
         smallFont.draw(batch, "Best: " + highscoreManager.getBestScore(), width / 26, height * .88f, 300, Align.left, false);
+
+        if (paused) {
+            bigFont.draw(batch, "Paused", width / 2.5f, height / 2.5f, 300, Align.left ,false);
+        }
         batch.end();
         if (!paused) {
             input(delta);
