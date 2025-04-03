@@ -16,9 +16,9 @@ public class Character {
     private float charHeight;
 
     public Character() {
-        this.charTexture = new Texture("character_normal.png");
-        this.charFirstAnimationTexture = new Texture("character_Up.png");
-        this.charSecondAnimationTexture = new Texture("character_Down.png");
+        this.charTexture = new Texture("character/character_normal.png");
+        this.charFirstAnimationTexture = new Texture("character/character_Up.png");
+        this.charSecondAnimationTexture = new Texture("character/character_Down.png");
         this.charSprite = new Sprite(charTexture);
         this.charSprite.setSize(1.5f, 1.5f);
         this.charSprite.setPosition(7, 6);
