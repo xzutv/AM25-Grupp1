@@ -7,7 +7,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -21,17 +20,14 @@ public class GameScreen implements Screen {
     private FitViewport viewport;
     private Character character;
     private Obstacle obstacle;
-    private Texture backgroundTexture;
+    private Texture backgroundTextureMountains;
+    private Texture backgroundTextureForest;
+    private Texture backgroundTextureDesert;
+    private Texture pausedText;
     private SpriteBatch spriteBatch;
 
     private float obstacleTimer;
-    private float obstacleDelay;
-    private float scoreTimer;
-    private float scoreDelay;
-    private float scoreChange;
     private float animationTimer;
-    private int fasterObs;
-    private int fasterLimit;
 
     private final float SPEED = 5f;
     private float velocity;
@@ -47,8 +43,19 @@ public class GameScreen implements Screen {
     private float height;
 
     private Sound jumpSound;
+    private Sound deathSound;
+    private Sound startSound;
 
     private boolean paused;
+    private boolean gameOver;
+    private float deathTimer;
+
+    private int speedIncreaseThreshold = 2;
+    private int speedIncreaseStep = 2; // increase every 2 points
+    private int speedIncreaseLimit = 3; // only 3 times
+    private int speedIncreasesSoFar = 0;
+
+    private float obstacleDelay = 2f;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -56,65 +63,66 @@ public class GameScreen implements Screen {
         this.viewport = new FitViewport(16, 10);
         this.character = new Character();
         this.obstacle = new Obstacle();
-        this.backgroundTexture = new Texture("background-game.png");
+        this.backgroundTextureMountains = new Texture("backgrounds/background-game-mountains.png");
+        this.backgroundTextureForest = new Texture("backgrounds/background-game-forest.png");
+        this.backgroundTextureDesert = new Texture("backgrounds/background-game-desert.png");
+        this.pausedText = new Texture("text/text-gamescreen-paused.png");
         this.spriteBatch = new SpriteBatch();
 
-        obstacle.createObstacles(viewport);
+        obstacle.createObstacles(viewport, points);
 
         this.obstacleTimer = 0f;
-        this.obstacleDelay = 2f;
-        this.scoreTimer = -.8f;
-        this.scoreDelay = 2f;
-        this.scoreChange = 0f;
         this.animationTimer = 0f;
-        this.fasterObs = 2;
-        this.fasterLimit = 0;
 
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
 
         this.batch = new SpriteBatch();
         final Color smallFontColor = Color.BLACK;
-        final Color bigFontColor = Color.WHITE;
-
         this.smallFont = new BitmapFont();
         this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
 
-
-        this.bigFont = new BitmapFont();
-        this.bigFont.setColor(bigFontColor);
-        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        this.bigFont.getData().setScale(width / 300);
-
-        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
+        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("audio/sound-jump.mp3"));
+        this.deathSound = Gdx.audio.newSound(Gdx.files.internal("audio/sound-death.wav"));
+        this.startSound = Gdx.audio.newSound(Gdx.files.internal("audio/sound-start.wav"));
 
         this.paused = false;
+        this.gameOver = false;
+        this.deathTimer = 0f;
     }
 
     @Override
     public void show() {
-        obstacleDelay = 2f;
-        scoreDelay = 2f;
-        fasterObs = 2;
-
+        startSound.play(.2f);
     }
 
     @Override
     public void render(float delta) {
         draw();
         batch.begin();
+        if (points >= 20) {
+            smallFont.setColor(Color.WHITE);
+        }
         smallFont.draw(batch, "Score: " + points, width / 30, height * .95f, 200, Align.left, false);
         smallFont.draw(batch, "Best: " + highscoreManager.getBestScore(), width / 26, height * .88f, 300, Align.left, false);
 
         if (paused) {
-            bigFont.draw(batch, "Paused", width / 2.5f, height / 2.5f, 300, Align.left ,false);
+            batch.draw(pausedText, 0, 0, width, height);
         }
         batch.end();
         if (!paused) {
-            input(delta);
-            logic(delta);
+            if (!gameOver) {
+                input(delta);
+                logic(delta);
+            } else {
+                deathTimer += delta;
+                if (deathTimer >= 1.5f) {
+                    gameOver = false;
+                    main.goToGameOverScreen();
+                }
+            }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             paused = !paused;
@@ -150,51 +158,41 @@ public class GameScreen implements Screen {
         character.restrictOutOfBoundsMovement(viewport);
 
         for (int i = obstacle.getObstacleArray().size - 1; i >= 0; i--) {
+            ObstaclePair pair = obstacle.getObstacleArray().get(i);
             obstacle.createObstacleMechanics(i, delta);
             if (obstacle.characterHitsObstacle(character)) {
-                obstacle.getObstacleArray().removeIndex(i);
                 main.setRoundScore(points);
                 main.stopMusic();
-                main.goToGameOverScreen();
+                gameOver = true;
+                deathSound.play(.3f);
             } else if (character.getCharRectangle().getY() < 0) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
                 main.stopMusic();
-                main.goToGameOverScreen();
+                gameOver = true;
+                deathSound.play(.3f);
+            }
+            if (!pair.passed && ((pair.obstacleTop.getX() + pair.obstacleTop.getWidth() / 10)) < character.getCharRectangle().x) {
+                pair.passed = true;
+                points++;
+                if (points >= speedIncreaseThreshold && speedIncreasesSoFar < speedIncreaseLimit) {
+                    increaseDifficulty();
+                }
             }
         }
+        obstacleTimer += delta;
+        if (obstacleTimer > obstacleDelay) {
+            obstacleTimer = 0;
+            obstacle.createObstacles(viewport, points);
+        }
+    }
 
-        obstacleTimer += delta; // Adds the current delta to the timer
-        scoreTimer += delta;
-        if (scoreTimer > scoreDelay && points >= fasterObs && fasterLimit < 3) {
-            points++;
-            scoreDelay -= .25f;
-            scoreTimer = -.25f;
-            scoreChange = 1;
-            System.out.println(scoreDelay);
-        }
-        else if(scoreTimer > scoreDelay && scoreChange > 0){
-            points++;
-            scoreTimer = -.25f;
-            scoreChange -= 1;
-        }
-        else if(scoreTimer > scoreDelay) {
-            points++;
-            scoreTimer = 0f;
-            System.out.println(fasterObs);
-        }
+    private void increaseDifficulty() {
+        obstacle.addSpeed(0.5f);
+        speedIncreasesSoFar++;
+        speedIncreaseThreshold += speedIncreaseStep;
 
-        if (obstacleTimer > obstacleDelay && points >= fasterObs && fasterLimit < 3) {
-            obstacleDelay -= .15f;
-            obstacleTimer = 0f;
-            fasterObs += 2;
-            fasterLimit += 1;
-            obstacle.addSpeed(.5f);
-            obstacle.createObstacles(viewport);
-        }
-        else if(obstacleTimer > obstacleDelay) { // Check if it has been more than given seconds
-            obstacleTimer = 0; // reset timer
-            obstacle.createObstacles(viewport);
-        }
+        float minSpawnDelay = 0.8f;
+        obstacleDelay = Math.max(minSpawnDelay, 2f - speedIncreasesSoFar * 0.25f);
     }
 
     private void draw() {
@@ -206,14 +204,21 @@ public class GameScreen implements Screen {
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
 
-        spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
-        character.getCharSprite().draw(spriteBatch);
-
-        // draw each sprite
-        for (Sprite obstacleSprite : obstacle.getObstacleArray()) {
-            obstacleSprite.draw(spriteBatch);
+        if (points < 10) {
+            spriteBatch.draw(backgroundTextureForest, 0, 0, worldWidth, worldHeight);
+        } else if (points < 20) {
+            spriteBatch.draw(backgroundTextureMountains, 0, 0, worldWidth, worldHeight);
+        } else {
+            spriteBatch.draw(backgroundTextureDesert, 0, 0, worldWidth, worldHeight);
         }
 
+        character.getCharSprite().draw(spriteBatch);
+
+        // draw each obstacle-pair
+        for (ObstaclePair pair : obstacle.getObstacleArray()) {
+            pair.obstacleBottom.draw(spriteBatch);
+            pair.obstacleTop.draw(spriteBatch);
+        }
         spriteBatch.end();
     }
 

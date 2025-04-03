@@ -19,49 +19,40 @@ public class FirstScreen implements Screen {
     private HighscoreManager highscoreManager;
     private FitViewport viewport;
     private Character character;
+    private Sound jumpSound;
     private Texture backgroundTexture;
+    private Texture welcomeText;
     private SpriteBatch spriteBatch;
 
     private SpriteBatch batch;
-    private BitmapFont bigFont;
     private BitmapFont smallFont;
 
     private float width;
     private float height;
-
-    private Sound jumpSound;
 
     public FirstScreen(Main main) {
         this.main = main;
         this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
         this.character = new Character();
-        this.backgroundTexture = new Texture("background-game.png");
+        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("audio/sound-jump.mp3"));
+        this.backgroundTexture = new Texture("backgrounds/background-game-forest.png");
+        this.welcomeText = new Texture("text/text-firstscreen-welcome.png");
         this.spriteBatch = new SpriteBatch();
 
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
 
         this.batch = new SpriteBatch();
-        this.bigFont = new BitmapFont();
-
         final Color smallFontColor = Color.BLACK;
-        final Color bigFontColor = Color.WHITE;
-        this.bigFont.setColor(bigFontColor);
-        this.bigFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        this.bigFont.getData().setScale(width / 300);
-
         this.smallFont = new BitmapFont();
         this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
-
-        this.jumpSound = Gdx.audio.newSound(Gdx.files.internal("sound-jump.mp3"));
     }
 
     @Override
     public void dispose() {
-        bigFont.dispose();
         smallFont.dispose();
         batch.dispose();
         spriteBatch.dispose();
@@ -70,7 +61,6 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
-        main.setRoundScore(0);
     }
 
     @Override
@@ -82,8 +72,6 @@ public class FirstScreen implements Screen {
     public void render(float delta) {
         draw();
         batch.begin();
-        bigFont.draw(batch, "Press space to start!", width / 3.5f, height / 2.5f, 300, Align.left ,false);
-        bigFont.draw(batch, "Press \"H\" to see highscore", width / 4.5f, height / 3.5f, 300, Align.left ,false);
         if (!main.isFirstRound()) {
             String roundPoints = String.format("Score: %d", main.getRoundScore());
             smallFont.draw(batch, roundPoints, width / 30, height * .95f, 300, Align.left, false);
@@ -104,7 +92,6 @@ public class FirstScreen implements Screen {
         }
     }
 
-
     private void draw() {
         ScreenUtils.clear(Color.BLACK);
         viewport.apply();
@@ -115,6 +102,7 @@ public class FirstScreen implements Screen {
         float worldHeight = viewport.getWorldHeight();
 
         spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
+        spriteBatch.draw(welcomeText, 0, 0, worldWidth, worldHeight);
         character.getCharSprite().draw(spriteBatch);
 
         spriteBatch.end();

@@ -3,6 +3,7 @@ package se.yrgo.AM25_grupp1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -18,6 +19,9 @@ public class GameOverScreen implements Screen {
     private HighscoreManager highscoreManager;
     private FitViewport viewport;
     private Texture backgroundTexture;
+    private Texture gameOverText;
+    private Texture newHighscoreText;
+    private Texture returnText;
     private SpriteBatch spriteBatch;
     private SpriteBatch batch;
     private BitmapFont bigFont;
@@ -26,6 +30,9 @@ public class GameOverScreen implements Screen {
     private String playerName = "";
     private boolean isEnteringName = false;
     private boolean hasEnteredName = false;
+    private boolean newHighscore = false;
+    private Sound highscoreSound;
+    private boolean highscoreSoundPlayed = false;
 
     private float width;
     private float height;
@@ -34,7 +41,10 @@ public class GameOverScreen implements Screen {
         this.main = main;
         this.highscoreManager = new HighscoreManager();
         this.viewport = new FitViewport(16, 10);
-        this.backgroundTexture = new Texture("background-gameover.png");
+        this.backgroundTexture = new Texture("backgrounds/background-gameover.png");
+        this.gameOverText = new Texture("text/text-gameover-restart.png");
+        this.newHighscoreText = new Texture("text/text-gameover-newhighscore.png");
+        this.returnText = new Texture("text/text-gameover-return.png");
         this.spriteBatch = new SpriteBatch();
         this.width = Gdx.graphics.getWidth();
         this.height = Gdx.graphics.getHeight();
@@ -52,6 +62,8 @@ public class GameOverScreen implements Screen {
         this.smallFont.setColor(smallFontColor);
         this.smallFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.smallFont.getData().setScale(width / 400);
+
+        this.highscoreSound = Gdx.audio.newSound(Gdx.files.internal("audio/sound-new-highscore.wav"));
     }
 
     @Override
@@ -63,7 +75,6 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void show() {
-
     }
 
     @Override
@@ -73,16 +84,17 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        main.playGameOverMusic();
         draw();
         batch.begin();
 
         if (main.isSeeHighscore()) {
-            bigFont.draw(batch, "Press space to return!", width / 3.9f, height / 3.5f, 300, Align.left, false);
+            batch.draw(returnText, 0, 0, width, height);
             printHighscores();
         }
 
-        if (((hasEnteredName || main.getRoundScore() < highscoreManager.getLowestHighscore() || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
-            printStandardText();
+        if (((hasEnteredName || main.getRoundScore() <= highscoreManager.getLowestHighscore() || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
+            batch.draw(gameOverText, 0, 0, width, height);
             printScore();
             printHighscores();
         }
@@ -90,11 +102,12 @@ public class GameOverScreen implements Screen {
         if (main.getRoundScore() > highscoreManager.getLowestHighscore() ||
                 (highscoreManager.getHighscores().size() < 5) && main.getRoundScore() > 0) {
             printScore();
+            newHighscore = true;
             if (isEnteringName && !hasEnteredName) {
+                newHighscore = false;
                 bigFont.draw(batch, "Enter your name: " + playerName, width / 3.3f, height / 2.5f, 300, Align.left, false);
             } else if (!hasEnteredName) {
-                bigFont.draw(batch, "New highscore!", width / 3.1f, height / 2f, 300, Align.left, false);
-                bigFont.draw(batch, "Press ENTER to enter name", width / 5f, height / 2.5f, 300, Align.left, false);
+                batch.draw(newHighscoreText, 0, 0, width, height);
             }
         }
         batch.end();
@@ -103,6 +116,8 @@ public class GameOverScreen implements Screen {
             if (main.isSeeHighscore()) {
                 main.setSeeHighscore(false);
             }
+            main.setRoundScore(0);
+            main.stopGameOverMusic();
             main.create();
         }
 
@@ -111,11 +126,11 @@ public class GameOverScreen implements Screen {
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             isEnteringName = true;
         }
-    }
 
-    private void printStandardText() {
-        bigFont.draw(batch, "Game over!", width / 2.8f, height / 2.5f, 300, Align.left, false);
-        bigFont.draw(batch, "Press space to restart!", width / 3.9f, height / 3.5f, 300, Align.left, false);
+        if (newHighscore && !highscoreSoundPlayed) {
+            highscoreSound.play(.2f);
+            highscoreSoundPlayed = true;
+        }
     }
 
     private void printScore() {
@@ -126,7 +141,6 @@ public class GameOverScreen implements Screen {
 
     private void printHighscores() {
         smallFont.draw(batch, "Top 5 Highscores:", width / 3, height * .97f, 300, Align.left, false);
-
         float heightCounter = .87f;
         ArrayList<HighscoreManager.ScoreEntry> highScores = highscoreManager.getHighscores();
         for (int i = 0; i < highScores.size(); i++) {
@@ -145,13 +159,10 @@ public class GameOverScreen implements Screen {
                 }
             }
         }
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && !playerName.isEmpty()) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            System.out.println("Player Name: " + playerName);
             highscoreManager.saveHighscore(playerName, main.getRoundScore());
             isEnteringName = false;
             hasEnteredName = true;
