@@ -52,7 +52,7 @@ public class GameScreen implements Screen {
 
     private int speedIncreaseThreshold = 2;
     private int speedIncreaseStep = 2; // increase every 2 points
-    private int speedIncreaseLimit = 3; // only 3 times
+    private int speedIncreaseLimit = 4; // only 3 times
     private int speedIncreasesSoFar = 0;
 
     private float obstacleDelay = 2f;
@@ -140,7 +140,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             animationTimer = 0f;
             velocity = SPEED;
-            jumpSound.play(.2f);
+            jumpSound.play(.1f);
             character.animateCharacter();
         }
         if (animationTimer >= 0.1f) {
