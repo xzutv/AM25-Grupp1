@@ -33,46 +33,25 @@ public class Main extends Game {
         this.gameOverMusic.setVolume(0.5f);
     }
 
-    public int getRoundScore() {
-        return roundScore;
-    }
+    public int getRoundScore() { return roundScore; }
 
-    public void setRoundScore(int roundScore) {
-        this.roundScore = roundScore;
-    }
+    public void setRoundScore(int roundScore) { this.roundScore = roundScore; }
 
-    public boolean isFirstRound() {
-        return firstRound;
-    }
+    public boolean isFirstRound() { return firstRound; }
 
-    public void setFirstRound(boolean firstRound) {
-        this.firstRound = firstRound;
-    }
+    public void setFirstRound(boolean firstRound) { this.firstRound = firstRound; }
 
-    public void startGame() {
-        setScreen(gameScreen);
-    }
-    public void goToGameOverScreen() {
-        setScreen(gameOverScreen);
-    }
+    public void startGame() { setScreen(gameScreen); }
 
-    public void setSeeHighscore(boolean seeHighscore) {
-        this.seeHighscore = seeHighscore;
-    }
+    public void goToGameOverScreen() { setScreen(gameOverScreen); }
 
-    public boolean isSeeHighscore() {
-        return seeHighscore;
-    }
+    public void setSeeHighscore(boolean seeHighscore) { this.seeHighscore = seeHighscore; }
 
-    public void stopMusic() {
-        this.gameMusic.stop();
-    }
+    public boolean isSeeHighscore() { return seeHighscore; }
 
-    public void playGameOverMusic() {
-        this.gameOverMusic.play();
-    }
+    public void stopMusic() { this.gameMusic.stop(); }
 
-    public void stopGameOverMusic() {
-        this.gameOverMusic.stop();
-    }
+    public void playGameOverMusic() { this.gameOverMusic.play(); }
+
+    public void stopGameOverMusic() { this.gameOverMusic.stop(); }
 }

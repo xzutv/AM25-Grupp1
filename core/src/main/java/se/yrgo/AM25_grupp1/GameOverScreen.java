@@ -88,13 +88,15 @@ public class GameOverScreen implements Screen {
         draw();
         batch.begin();
 
+        // Player just wants to see highscore from the firstScreen
         if (main.isSeeHighscore()) {
             batch.draw(returnText, 0, 0, width, height);
             printHighscores();
         }
 
-        if (((hasEnteredName || main.getRoundScore() <= highscoreManager.getLowestHighscore() || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
+        if (((hasEnteredName || (main.getRoundScore() <= highscoreManager.getLowestHighscore() && highscoreManager.getHighscores().size() >= 5 ) || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
             batch.draw(gameOverText, 0, 0, width, height);
+            newHighscore = false;
             printScore();
             printHighscores();
         }
@@ -112,7 +114,7 @@ public class GameOverScreen implements Screen {
         }
         batch.end();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !isEnteringName && !newHighscore) {
             if (main.isSeeHighscore()) {
                 main.setSeeHighscore(false);
             }
@@ -164,8 +166,10 @@ public class GameOverScreen implements Screen {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             highscoreManager.saveHighscore(playerName, main.getRoundScore());
+            newHighscore = false;
             isEnteringName = false;
             hasEnteredName = true;
+            main.setRoundScore(0);
         }
     }
 
