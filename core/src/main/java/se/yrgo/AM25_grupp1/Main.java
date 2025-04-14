@@ -15,7 +15,7 @@ public class Main extends Game {
 
     private boolean firstRound = true;
     private int roundScore;
-    private boolean seeHighscore = false;
+    private boolean wantsToSeeHighscore = false;
     private Music gameMusic;
     private Music gameOverMusic;
 
@@ -45,9 +45,9 @@ public class Main extends Game {
 
     public void goToGameOverScreen() { setScreen(gameOverScreen); }
 
-    public void setSeeHighscore(boolean seeHighscore) { this.seeHighscore = seeHighscore; }
+    public void setWantsToSeeHighscore(boolean seeHighscore) { this.wantsToSeeHighscore = seeHighscore; }
 
-    public boolean isSeeHighscore() { return seeHighscore; }
+    public boolean wantsToSeeHighscore() { return wantsToSeeHighscore; }
 
     public void stopMusic() { this.gameMusic.stop(); }
 
