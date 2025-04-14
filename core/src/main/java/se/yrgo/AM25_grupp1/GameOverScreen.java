@@ -89,12 +89,12 @@ public class GameOverScreen implements Screen {
         batch.begin();
 
         // Player just wants to see highscore from the firstScreen
-        if (main.isSeeHighscore()) {
+        if (main.wantsToSeeHighscore()) {
             batch.draw(returnText, 0, 0, width, height);
             printHighscores();
         }
 
-        if (((hasEnteredName || (main.getRoundScore() <= highscoreManager.getLowestHighscore() && highscoreManager.getHighscores().size() >= 5 ) || main.getRoundScore() == 0)) && !main.isSeeHighscore()) {
+        if (((hasEnteredName || (main.getRoundScore() <= highscoreManager.getLowestHighscore() && highscoreManager.getHighscores().size() >= 5 ) || main.getRoundScore() == 0)) && !main.wantsToSeeHighscore()) {
             batch.draw(gameOverText, 0, 0, width, height);
             newHighscore = false;
             printScore();
@@ -115,8 +115,8 @@ public class GameOverScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !isEnteringName && !newHighscore) {
-            if (main.isSeeHighscore()) {
-                main.setSeeHighscore(false);
+            if (main.wantsToSeeHighscore()) {
+                main.setWantsToSeeHighscore(false);
             }
             main.setRoundScore(0);
             main.stopGameOverMusic();
@@ -125,7 +125,7 @@ public class GameOverScreen implements Screen {
 
         if (isEnteringName) {
             handleTextInput();
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && !hasEnteredName && newHighscore && !isEnteringName) {
             isEnteringName = true;
         }
 
@@ -164,7 +164,7 @@ public class GameOverScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && !playerName.isEmpty()) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && !playerName.isEmpty()) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && !playerName.isEmpty() && !hasEnteredName) {
             highscoreManager.saveHighscore(playerName, main.getRoundScore());
             newHighscore = false;
             isEnteringName = false;

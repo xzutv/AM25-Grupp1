@@ -87,7 +87,7 @@ public class FirstScreen implements Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
             main.stopMusic();
-            main.setSeeHighscore(true);
+            main.setWantsToSeeHighscore(true);
             main.goToGameOverScreen();
         }
     }
