@@ -2,8 +2,11 @@ package se.yrgo.AM25_grupp1;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class Character {
@@ -11,9 +14,10 @@ public class Character {
     private Texture charFirstAnimationTexture;
     private Texture charSecondAnimationTexture;
     private Sprite charSprite;
-    private Rectangle charRectangle;
+    private Circle charCircle;
     private float charWidth;
     private float charHeight;
+    public Vector2 charPosition;
 
     public Character() {
         this.charTexture = new Texture("character/character_normal.png");
@@ -22,7 +26,7 @@ public class Character {
         this.charSprite = new Sprite(charTexture);
         this.charSprite.setSize(1.5f, 1.5f);
         this.charSprite.setPosition(7, 6);
-        this.charRectangle = new Rectangle();
+        this.charCircle = new Circle();
 
         this.charWidth = charSprite.getWidth();
         this.charHeight = charSprite.getHeight();
@@ -32,8 +36,8 @@ public class Character {
         return charSprite;
     }
 
-    public Rectangle getCharRectangle() {
-        return charRectangle;
+    public Circle getCharCircle() {
+        return charCircle;
     }
 
     public void animateCharacter() {
@@ -49,7 +53,7 @@ public class Character {
     }
 
     public void createCharacterHitbox() {
-        charRectangle.set(charSprite.getX(), charSprite.getY(), (charWidth * .9f), (charHeight * .8f));
+        charCircle.set(charSprite.getX() + charSprite.getWidth()/2,charSprite.getY() + charSprite.getHeight()/2 + 0.03f, charSprite.getHeight()/3);
     }
 
     public void applyGravityToCharacter(Float velocity, Float delta) {
