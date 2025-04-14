@@ -51,7 +51,7 @@ public class GameScreen implements Screen {
     private float deathTimer;
 
     private int speedIncreaseThreshold = 2;
-    private int speedIncreaseStep = 2; // increase every 2 points
+    private int speedIncreaseStep = 10; // increase every 10 points
     private int speedIncreaseLimit = 4; // only 3 times
     private int speedIncreasesSoFar = 0;
 
