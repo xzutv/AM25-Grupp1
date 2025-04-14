@@ -169,7 +169,7 @@ public class GameScreen implements Screen {
                 main.stopMusic();
                 gameOver = true;
                 deathSound.play(.3f);
-            } else if (character.getCharCircle().y < 0) { // Character hits the bottom of the screen.
+            } else if (character.getCharCircle().y < .85f) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
                 main.stopMusic();
                 gameOver = true;
