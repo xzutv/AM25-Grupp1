@@ -7,7 +7,10 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -25,6 +28,7 @@ public class GameScreen implements Screen {
     private Texture backgroundTextureDesert;
     private Texture pausedText;
     private SpriteBatch spriteBatch;
+    private ShapeRenderer charShapeRenderer;
 
     private float obstacleTimer;
     private float animationTimer;
@@ -165,13 +169,13 @@ public class GameScreen implements Screen {
                 main.stopMusic();
                 gameOver = true;
                 deathSound.play(.3f);
-            } else if (character.getCharRectangle().getY() < 0) { // Character hits the bottom of the screen.
+            } else if (character.getCharCircle().y < 0) { // Character hits the bottom of the screen.
                 main.setRoundScore(points);
                 main.stopMusic();
                 gameOver = true;
                 deathSound.play(.3f);
             }
-            if (!pair.passed && ((pair.obstacleTop.getX() + pair.obstacleTop.getWidth() / 10)) < character.getCharRectangle().x) {
+            if (!pair.passed && ((pair.obstacleTop.getX() + pair.obstacleTop.getWidth() / 10)) < character.getCharCircle().x) {
                 pair.passed = true;
                 points++;
                 if (points >= speedIncreaseThreshold && speedIncreasesSoFar < speedIncreaseLimit) {
@@ -203,6 +207,7 @@ public class GameScreen implements Screen {
 
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
+        Sprite sprite = character.getCharSprite();
 
         if (points < 10) {
             spriteBatch.draw(backgroundTextureForest, 0, 0, worldWidth, worldHeight);
@@ -211,8 +216,7 @@ public class GameScreen implements Screen {
         } else {
             spriteBatch.draw(backgroundTextureDesert, 0, 0, worldWidth, worldHeight);
         }
-
-        character.getCharSprite().draw(spriteBatch);
+        sprite.draw(spriteBatch);
 
         // draw each obstacle-pair
         for (ObstaclePair pair : obstacle.getObstacleArray()) {

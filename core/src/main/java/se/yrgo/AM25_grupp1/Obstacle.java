@@ -2,6 +2,7 @@ package se.yrgo.AM25_grupp1;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -95,8 +96,8 @@ public class Obstacle {
     }
 
     public boolean characterHitsObstacle(Character character) {
-        if (character.getCharRectangle().overlaps(obstacleTopRectangle) ||
-            character.getCharRectangle().overlaps(obstacleBottomRectangle)) {
+        if (Intersector.overlaps(character.getCharCircle(), obstacleTopRectangle) ||
+            Intersector.overlaps(character.getCharCircle(), obstacleBottomRectangle)) {
 
             return true;
         }
