@@ -53,7 +53,8 @@ public class Character {
     }
 
     public void applyGravityToCharacter(Float velocity, Float delta) {
-        charSprite.translateY(velocity * delta);
+        float positionY = velocity * delta;
+        charSprite.translateY(positionY);
     }
 
     public void restrictOutOfBoundsMovement(FitViewport viewport) {
