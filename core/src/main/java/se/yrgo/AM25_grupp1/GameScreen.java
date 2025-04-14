@@ -31,7 +31,7 @@ public class GameScreen implements Screen {
 
     private final float SPEED = 5f;
     private float velocity;
-    private final float GRAVITY = -.2f;
+    private final float GRAVITY = -18f;
 
     private int points;
 
@@ -153,7 +153,7 @@ public class GameScreen implements Screen {
 
     private void logic(Float delta) {
         character.createCharacterHitbox();
-        velocity += GRAVITY;
+        velocity += GRAVITY * delta;
         character.applyGravityToCharacter(velocity, delta);
         character.restrictOutOfBoundsMovement(viewport);
 
