@@ -164,7 +164,7 @@ public class GameOverScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && !playerName.isEmpty()) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && !playerName.isEmpty()) {
             highscoreManager.saveHighscore(playerName, main.getRoundScore());
             newHighscore = false;
             isEnteringName = false;
